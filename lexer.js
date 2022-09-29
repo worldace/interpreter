@@ -4,57 +4,53 @@ import {T, Token, keyword} from './token.js'
 class Lexer{
 
     constructor(input){
-        this.input = input
-        this.position = 0
-        this.readPosition = 0
-        this.c = ''
+        this.input = input + ';'
+        this.c     = ''
+        this.index = 0
+        this.pos   = 0
         this.read()
     }
 
 
     read(){
-        this.c = this.readPosition < this.input.length ? this.input[this.readPosition] : 'EOF'
-        this.position = this.readPosition
-        this.readPosition += 1
+        this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
+        this.pos = this.index
+        this.index += 1
     }
 
 
-    peekChar(){
-        if (this.readPosition >= this.input.length) {
-            return 0
-        } else {
-            return this.input[this.readPosition]
-        }
+    prefetch(){
+        return this.input[this.pos+1]
     }
 
 
     readIdent(){
-        const start = this.position
+        const start = this.pos
         while(isLetter(this.c)){
             this.read()
         }
-        return this.input.slice(start, this.position)
+        return this.input.slice(start, this.pos)
     }
 
 
     readString(){
-        const start = this.position + 1
+        const start = this.pos + 1
         while(true){
             this.read()
             if (this.c == '"' || this.c == 'EOF') {
                 break
             }
         }
-        return this.input.slice(start, this.position)
+        return this.input.slice(start, this.pos)
     }
 
 
     readNumber(){
-        const start = this.position
+        const start = this.pos
         while(isDigit(this.c)){
             this.read()
         }
-        return this.input.slice(start, this.position)
+        return this.input.slice(start, this.pos)
     }
 
 
@@ -72,7 +68,7 @@ class Lexer{
 
         switch(this.c){
             case '=':
-                if(this.peekChar() == '=') {
+                if(this.prefetch() === '=') {
                     const c = this.c
                     this.read()
                     tok = new Token(T.EQ, c + this.c)
@@ -106,7 +102,7 @@ class Lexer{
                 tok = new Token(T.MINUS, this.c)
                 break
             case '!':
-                if (this.peekChar() == '=') {
+                if (this.prefetch() === '=') {
                     const c = this.c
                     this.read()
                     tok = new Token(T.NOTEQ, c + this.c)

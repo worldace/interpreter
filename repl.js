@@ -5,7 +5,10 @@ import { Eval } from './evaluator.js';
 import { Environment } from './environment.js';
 
 
-const input = '(5 + 10 * 2 + 15 / 3) * 2 + -10';
+//const input = '(5 + 10 * 2 + 15 / 3) * 2 + -10;';
+const input = 'let a = 10;let b = 20;a-b'
+
+
 export const StartLexer = ()=>{
     const l = new Lexer(input);
     while(true){
@@ -22,7 +25,7 @@ export const StartParser = ()=>{
     const p = new Parser(l);
     const program = p.parseProgram();
     console.log(program);
-    console.log(program.statements[0].expression.string());
+    //console.log(program.statements[0].expression.string());
 
     for(const v of p.Errors()){
         console.log(`\t${v}\n`)
