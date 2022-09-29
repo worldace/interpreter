@@ -1,5 +1,5 @@
 import { Lexer } from './lexer.js';
-import { TokenDef } from './token.js';
+import { T } from './token.js';
 import { Parser } from './parser.js';
 import { Eval } from './evaluator.js';
 import { Environment } from './environment.js';
@@ -10,7 +10,7 @@ export const StartLexer = ()=>{
     const l = new Lexer(input);
     while(true){
         const tok = l.NextToken();
-        if (tok.type == TokenDef.EOF) {
+        if (tok.type == T.EOF) {
             break;
         }
         console.log(tok);

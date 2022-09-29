@@ -1,4 +1,4 @@
-import { TokenDef, Token, LookupIdent } from './token.js';
+import { T, Token, LookupIdent } from './token.js';
 
 
 export class Lexer {
@@ -89,71 +89,71 @@ export class Lexer {
                     const ch = this.ch;
                     this.readChar();
                     const literal = String(ch) + String(this.ch);
-                    tok = this.newToken(TokenDef.EQ, literal);
+                    tok = this.newToken(T.EQ, literal);
                 } else {
-                    tok = this.newToken(TokenDef.ASSIGN, this.ch);
+                    tok = this.newToken(T.ASSIGN, this.ch);
                 }
                 break;
             case '"':
-                tok = this.newToken(TokenDef.STRING, this.readString());
+                tok = this.newToken(T.STRING, this.readString());
                 break;
             case ':':
-                tok = this.newToken(TokenDef.COLON, this.ch);
+                tok = this.newToken(T.COLON, this.ch);
                 break;
             case ';':
-                tok = this.newToken(TokenDef.SEMICOLON, this.ch);
+                tok = this.newToken(T.SEMICOLON, this.ch);
                 break;
             case '(':
-                tok = this.newToken(TokenDef.LPAREN, this.ch);
+                tok = this.newToken(T.LPAREN, this.ch);
                 break;
             case ')':
-                tok = this.newToken(TokenDef.RPAREN, this.ch);
+                tok = this.newToken(T.RPAREN, this.ch);
                 break;
             case ',':
-                tok = this.newToken(TokenDef.COMMA, this.ch);
+                tok = this.newToken(T.COMMA, this.ch);
                 break;
             case '+':
-                tok = this.newToken(TokenDef.PLUS, this.ch);
+                tok = this.newToken(T.PLUS, this.ch);
                 break;
             case '-':
-                tok = this.newToken(TokenDef.MINUS, this.ch);
+                tok = this.newToken(T.MINUS, this.ch);
                 break;
             case '!':
                 if (this.peekChar() == '=') {
                     const ch1 = this.ch;
                     this.readChar();
                     const literal1 = String(ch1) + String(this.ch);
-                    tok = this.newToken(TokenDef.NOT_EQ, literal1);
+                    tok = this.newToken(T.NOT_EQ, literal1);
                 } else {
-                    tok = this.newToken(TokenDef.BANG, this.ch);
+                    tok = this.newToken(T.BANG, this.ch);
                 }
                 break;
             case '/':
-                tok = this.newToken(TokenDef.SLASH, this.ch);
+                tok = this.newToken(T.SLASH, this.ch);
                 break;
             case '*':
-                tok = this.newToken(TokenDef.ASTERISK, this.ch);
+                tok = this.newToken(T.ASTERISK, this.ch);
                 break;
             case '<':
-                tok = this.newToken(TokenDef.LT, this.ch);
+                tok = this.newToken(T.LT, this.ch);
                 break;
             case '>':
-                tok = this.newToken(TokenDef.GT, this.ch);
+                tok = this.newToken(T.GT, this.ch);
                 break;
             case '{':
-                tok = this.newToken(TokenDef.LBRACE, this.ch);
+                tok = this.newToken(T.LBRACE, this.ch);
                 break;
             case '}':
-                tok = this.newToken(TokenDef.RBRACE, this.ch);
+                tok = this.newToken(T.RBRACE, this.ch);
                 break;
             case '[':
-                tok = this.newToken(TokenDef.LBRACKET, this.ch);
+                tok = this.newToken(T.LBRACKET, this.ch);
                 break;
             case ']':
-                tok = this.newToken(TokenDef.RBRACKET, this.ch);
+                tok = this.newToken(T.RBRACKET, this.ch);
                 break;
             case 'EOF':
-                tok = this.newToken(TokenDef.EOF, '');
+                tok = this.newToken(T.EOF, '');
                 break;
             default:
                 if (this.isLetter(this.ch)) {
@@ -161,10 +161,10 @@ export class Lexer {
                     tok = this.newToken(LookupIdent(literal2), literal2);
                     return tok; // readIdentifierでreadCharが呼び出されreadPositionが進んでいる
                 } else if (this.isDigit(this.ch)) {
-                    tok = this.newToken(TokenDef.INT, this.readNumber());
+                    tok = this.newToken(T.INT, this.readNumber());
                     return tok;
                 } else {
-                    tok = this.newToken(TokenDef.ILLEGAL, this.ch);
+                    tok = this.newToken(T.ILLEGAL, this.ch);
                 }
         }
         this.readChar();
