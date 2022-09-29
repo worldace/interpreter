@@ -1,176 +1,183 @@
-import { T, Token, LookupIdent } from './token.js';
+import {T, Token, keyword} from './token.js'
 
 
-export class Lexer {
-    input;
-    position;
-    readPosition;
-    ch;
-    constructor(input, position = 0, readPosition = 0, ch = ''){
-        this.input = input;
-        this.position = position;
-        this.readPosition = readPosition;
-        this.ch = ch;
-        this.readChar();
+class Lexer{
+
+    constructor(input){
+        this.input = input
+        this.position = 0
+        this.readPosition = 0
+        this.c = ''
+        this.read()
     }
-    readChar() {
+
+
+    read(){
+        this.c = this.readPosition < this.input.length ? this.input[this.readPosition] : 'EOF'
+        this.position = this.readPosition
+        this.readPosition += 1
+    }
+
+
+    peekChar(){
         if (this.readPosition >= this.input.length) {
-            this.ch = 'EOF';
+            return 0
         } else {
-            this.ch = this.input[this.readPosition];
-        }
-        this.position = this.readPosition;
-        this.readPosition += 1;
-    }
-    peekChar() {
-        if (this.readPosition >= this.input.length) {
-            return 0;
-        } else {
-            return this.input[this.readPosition];
+            return this.input[this.readPosition]
         }
     }
-    readIdentifier() {
-        const position = this.position;
-        while(this.isLetter(this.ch)){
-            this.readChar();
+
+
+    readIdent(){
+        const start = this.position
+        while(isLetter(this.c)){
+            this.read()
         }
-        return this.input.slice(position, this.position);
+        return this.input.slice(start, this.position)
     }
-    readString() {
-        const position = this.position + 1;
+
+
+    readString(){
+        const start = this.position + 1
         while(true){
-            this.readChar();
-            if (this.ch == '"' || this.ch == 'EOF') {
-                break;
+            this.read()
+            if (this.c == '"' || this.c == 'EOF') {
+                break
             }
         }
-        return this.input.slice(position, this.position);
+        return this.input.slice(start, this.position)
     }
-    isLetter(ch) {
-        let flag;
-        if (typeof ch === 'number') {
-            flag = false;
-        } else if (ch.match(/[A-Z|a-z]/g)) {
-            flag = true;
-        } else {
-            flag = false;
+
+
+    readNumber(){
+        const start = this.position
+        while(isDigit(this.c)){
+            this.read()
         }
-        return flag;
+        return this.input.slice(start, this.position)
     }
-    readNumber() {
-        const position = this.position;
-        while(this.isDigit(this.ch)){
-            this.readChar();
-        }
-        return this.input.slice(position, this.position);
-    }
-    isDigit(ch) {
-        let flag;
-        if (typeof ch === 'number') {
-            flag = false;
-        } else if (ch.match(/[0-9]/g)) {
-            flag = true;
-        } else {
-            flag = false;
-        }
-        return flag;
-    }
-    skipWhitespace() {
-        while(this.ch == ' ' || this.ch == '\t' || this.ch == '\n' || this.ch == '\r'){
-            this.readChar();
+
+
+    readWhitespace(){
+        while(isWhitespace(this.c)){
+            this.read()
         }
     }
-    NextToken() {
-        let tok;
-        this.skipWhitespace();
-        switch(this.ch){
+
+
+    NextToken(){
+        let tok
+
+        this.readWhitespace()
+
+        switch(this.c){
             case '=':
-                if (this.peekChar() == '=') {
-                    const ch = this.ch;
-                    this.readChar();
-                    const literal = String(ch) + String(this.ch);
-                    tok = this.newToken(T.EQ, literal);
-                } else {
-                    tok = this.newToken(T.ASSIGN, this.ch);
+                if(this.peekChar() == '=') {
+                    const c = this.c
+                    this.read()
+                    tok = new Token(T.EQ, c + this.c)
                 }
-                break;
+                else{
+                    tok = new Token(T.ASSIGN, this.c)
+                }
+                break
             case '"':
-                tok = this.newToken(T.STRING, this.readString());
-                break;
+                tok = new Token(T.STRING, this.readString())
+                break
             case ':':
-                tok = this.newToken(T.COLON, this.ch);
-                break;
+                tok = new Token(T.COLON, this.c)
+                break
             case ';':
-                tok = this.newToken(T.SEMICOLON, this.ch);
-                break;
+                tok = new Token(T.SEMICOLON, this.c)
+                break
             case '(':
-                tok = this.newToken(T.LPAREN, this.ch);
-                break;
+                tok = new Token(T.LPAREN, this.c)
+                break
             case ')':
-                tok = this.newToken(T.RPAREN, this.ch);
-                break;
+                tok = new Token(T.RPAREN, this.c)
+                break
             case ',':
-                tok = this.newToken(T.COMMA, this.ch);
-                break;
+                tok = new Token(T.COMMA, this.c)
+                break
             case '+':
-                tok = this.newToken(T.PLUS, this.ch);
-                break;
+                tok = new Token(T.PLUS, this.c)
+                break
             case '-':
-                tok = this.newToken(T.MINUS, this.ch);
-                break;
+                tok = new Token(T.MINUS, this.c)
+                break
             case '!':
                 if (this.peekChar() == '=') {
-                    const ch1 = this.ch;
-                    this.readChar();
-                    const literal1 = String(ch1) + String(this.ch);
-                    tok = this.newToken(T.NOT_EQ, literal1);
-                } else {
-                    tok = this.newToken(T.BANG, this.ch);
+                    const c = this.c
+                    this.read()
+                    tok = new Token(T.NOTEQ, c + this.c)
                 }
-                break;
+                else {
+                    tok = new Token(T.BANG, this.c)
+                }
+                break
             case '/':
-                tok = this.newToken(T.SLASH, this.ch);
-                break;
+                tok = new Token(T.SLASH, this.c)
+                break
             case '*':
-                tok = this.newToken(T.ASTERISK, this.ch);
-                break;
+                tok = new Token(T.ASTERISK, this.c)
+                break
             case '<':
-                tok = this.newToken(T.LT, this.ch);
-                break;
+                tok = new Token(T.LT, this.c)
+                break
             case '>':
-                tok = this.newToken(T.GT, this.ch);
-                break;
+                tok = new Token(T.GT, this.c)
+                break
             case '{':
-                tok = this.newToken(T.LBRACE, this.ch);
-                break;
+                tok = new Token(T.LBRACE, this.c)
+                break
             case '}':
-                tok = this.newToken(T.RBRACE, this.ch);
-                break;
+                tok = new Token(T.RBRACE, this.c)
+                break
             case '[':
-                tok = this.newToken(T.LBRACKET, this.ch);
-                break;
+                tok = new Token(T.LBRACKET, this.c)
+                break
             case ']':
-                tok = this.newToken(T.RBRACKET, this.ch);
-                break;
+                tok = new Token(T.RBRACKET, this.c)
+                break
             case 'EOF':
-                tok = this.newToken(T.EOF, '');
-                break;
+                tok = new Token(T.EOF, '')
+                break
             default:
-                if (this.isLetter(this.ch)) {
-                    const literal2 = this.readIdentifier();
-                    tok = this.newToken(LookupIdent(literal2), literal2);
-                    return tok; // readIdentifierでreadCharが呼び出されreadPositionが進んでいる
-                } else if (this.isDigit(this.ch)) {
-                    tok = this.newToken(T.INT, this.readNumber());
-                    return tok;
-                } else {
-                    tok = this.newToken(T.ILLEGAL, this.ch);
+                if(isLetter(this.c)){
+                    const ident = this.readIdent()
+                    tok = new Token(keyword[ident] || T.IDENT, ident)
+                    return tok
+                }
+                else if(isDigit(this.c)){
+                    tok = new Token(T.INT, this.readNumber())
+                    return tok
+                }
+                else{
+                    tok = new Token(T.ILLEGAL, this.c)
                 }
         }
-        this.readChar();
-        return tok;
-    }
-    newToken(tokenType, ch) {
-        return new Token(tokenType, ch);
+
+        this.read()
+        return tok
     }
 }
+
+
+
+function isLetter(c){
+    return /[a-zA-Z]/.test(c)
+}
+
+
+function isDigit(c){
+    return /[0-9]/.test(c)
+}
+
+
+function isWhitespace(c){
+    return [' ', '\t', '\r', '\n'].includes(c)
+}
+
+
+
+export {Lexer}

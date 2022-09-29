@@ -1,5 +1,5 @@
-import { Lexer } from './lexer.js';
 import { T } from './token.js';
+import { Lexer } from './lexer.js';
 import { Parser } from './parser.js';
 import { Eval } from './evaluator.js';
 import { Environment } from './environment.js';
@@ -10,10 +10,10 @@ export const StartLexer = ()=>{
     const l = new Lexer(input);
     while(true){
         const tok = l.NextToken();
+        console.log(tok);
         if (tok.type == T.EOF) {
             break;
         }
-        console.log(tok);
     }
 };
 export const StartParser = ()=>{
@@ -23,18 +23,12 @@ export const StartParser = ()=>{
     const program = p.parseProgram();
     console.log(program);
     console.log(program.statements[0].expression.string());
-    if (p.Errors().length != 0) {
-        printParseErrors(p.Errors());
+
+    for(const v of p.Errors()){
+        console.log(`\t${v}\n`)
     }
-    const store = new Map();
-    const env = new Environment(store);
-    const evaluated = Eval(program, env);
-    if (evaluated != null) {
-        console.log(evaluated.inspect());
-    }
-};
-const printParseErrors = (errors)=>{
-    for (const error of errors){
-        console.log('\t' + error + '\n');
-    }
-};
+
+    const env = new Environment(new Map())
+    const evaluated = Eval(program, env)
+    console.log(evaluated?.inspect())
+}

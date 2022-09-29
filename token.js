@@ -15,7 +15,7 @@ T.SLASH     = '/'
 T.LT        = '<'
 T.GT        = '>'
 T.EQ        = '=='
-T.NOT_EQ    = '!='
+T.NOTEQ     = '!='
 T.COMMA     = ','
 T.COLON     = ':'
 T.SEMICOLON = ';'
@@ -34,7 +34,7 @@ T.ELSE      = 'ELSE'
 T.RETURN    = 'RETURN'
 
 
-const keywords = {
+const keyword = {
     fn    : T.FUNCTION,
     let   : T.LET,
     true  : T.TRUE,
@@ -53,10 +53,4 @@ class Token{
 }
 
 
-function LookupIdent(ident){
-    return keywords[ident] ? keywords[ident] : T.IDENT
-}
-
-
-
-export {T, Token, LookupIdent}
+export {T, Token, keyword}
