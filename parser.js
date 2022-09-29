@@ -1,76 +1,98 @@
-import { Token, T } from './token.js';
-import { Program, LetStatement, Identifier, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js';
+import { Token, T } from './token.js'
+import { Program, LetStatement, Identifier, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
 
 
-const LOWEST = 1;
-const EQUALS = 2;
-const LESSGREATER = 3;
-const SUM = 4;
-const PRODUCT = 5;
-const PREFIX = 6;
-const CALL = 7;
-const INDEX = 8;
-const precedences = {
-    [T.EQ]: EQUALS,
-    [T.NOT_EQ]: EQUALS,
-    [T.LT]: LESSGREATER,
-    [T.GT]: LESSGREATER,
-    [T.PLUS]: SUM,
-    [T.MINUS]: SUM,
-    [T.SLASH]: PRODUCT,
-    [T.ASTERISK]: PRODUCT,
-    [T.LPAREN]: CALL,
-    [T.LBRACKET]: INDEX
-};
+const priority = {
+    [T.EQ]       : 2,
+    [T.NOTEQ]    : 2,
+    [T.LT]       : 3,
+    [T.GT]       : 3,
+    [T.PLUS]     : 4,
+    [T.MINUS]    : 4,
+    [T.SLASH]    : 5,
+    [T.ASTERISK] : 5,
+    [T.LPAREN]   : 7,
+    [T.LBRACKET] : 8,
+}
+
+
 export class Parser {
-    l;
-    curToken;
-    peekToken;
-    errors = [];
-    prefixParseFns;
-    infixParseFns;
-    constructor(l, curToken = new Token(T.DEFAULT, 'DEFAULT'), peekToken = new Token(T.DEFAULT, 'DEFAULT'), errors = [], prefixParseFns = new Map(), infixParseFns = new Map()){
-        this.l = l;
-        this.curToken = curToken;
-        this.peekToken = peekToken;
-        this.errors = errors;
-        this.prefixParseFns = prefixParseFns;
-        this.infixParseFns = infixParseFns;
-        this.nextToken();
-        this.nextToken();
-        this.registerPrefix(T.IDENT, this.parseIdentifier);
-        this.registerPrefix(T.STRING, this.parseStringLiteral);
-        this.registerPrefix(T.INT, this.parseIntegerLiteral);
-        this.registerPrefix(T.BANG, this.parsePrefixExpression);
-        this.registerPrefix(T.MINUS, this.parsePrefixExpression);
-        this.registerPrefix(T.TRUE, this.parseBoolean);
-        this.registerPrefix(T.FALSE, this.parseBoolean);
-        this.registerPrefix(T.LPAREN, this.parseGroupedExpression);
-        this.registerPrefix(T.IF, this.parseIfExpression);
-        this.registerPrefix(T.FUNCTION, this.parseFunctionLiteral);
-        this.registerPrefix(T.LBRACKET, this.parseArrayLiteral);
-        this.registerPrefix(T.LBRACE, this.parseHashLiteral);
-        this.registerInfix(T.PLUS, this.parseInfixExpression);
-        this.registerInfix(T.MINUS, this.parseInfixExpression);
-        this.registerInfix(T.SLASH, this.parseInfixExpression);
-        this.registerInfix(T.ASTERISK, this.parseInfixExpression);
-        this.registerInfix(T.EQ, this.parseInfixExpression);
-        this.registerInfix(T.NOT_EQ, this.parseInfixExpression);
-        this.registerInfix(T.LT, this.parseInfixExpression);
-        this.registerInfix(T.GT, this.parseInfixExpression);
-        this.registerInfix(T.LPAREN, this.parseCallExpression);
-        this.registerInfix(T.LBRACKET, this.parseIndexExpression);
+    constructor(lexer){
+        this.lexer     = lexer
+        this.errors    = []
+        this.curToken  = new Token(T.DEFAULT, 'DEFAULT')
+        this.peekToken = new Token(T.DEFAULT, 'DEFAULT')
+        this.nextToken()
+        this.nextToken()
+
+        this.prefixFn = {
+            [T.IDENT]    : this.parseIdentifier,
+            [T.STRING]   : this.parseStringLiteral,
+            [T.INT]      : this.parseIntegerLiteral,
+            [T.BANG]     : this.parsePrefixExpression,
+            [T.MINUS]    : this.parsePrefixExpression,
+            [T.TRUE]     : this.parseBoolean,
+            [T.FALSE]    : this.parseBoolean,
+            [T.IF]       : this.parseIfExpression,
+            [T.FUNCTION] : this.parseFunctionLiteral,
+            [T.LPAREN]   : this.parseGroupedExpression,
+            [T.LBRACKET] : this.parseArrayLiteral,
+            [T.LBRACE]   : this.parseHashLiteral,
+        }
+
+        this.infixFn = {
+            [T.PLUS]     : this.parseInfixExpression,
+            [T.MINUS]    : this.parseInfixExpression,
+            [T.SLASH]    : this.parseInfixExpression,
+            [T.ASTERISK] : this.parseInfixExpression,
+            [T.EQ]       : this.parseInfixExpression,
+            [T.NOTEQ]    : this.parseInfixExpression,
+            [T.LT]       : this.parseInfixExpression,
+            [T.GT]       : this.parseInfixExpression,
+            [T.LBRACKET] : this.parseIndexExpression,
+            [T.LPAREN]   : this.parseCallExpression,
+        }
     }
+
+
     nextToken() {
         this.curToken = this.peekToken;
-        this.peekToken = this.l.NextToken();
+        this.peekToken = this.lexer.seek();
     }
-    registerPrefix(tokenType, fn) {
-        this.prefixParseFns.set(tokenType, fn);
+
+
+    peekPrecedence() {
+        return priority[this.peekToken.type] || 1
     }
-    registerInfix(tokenType, fn) {
-        this.infixParseFns.set(tokenType, fn);
+
+
+    curPrecedence() {
+        return priority[this.curToken.type] || 1
     }
+
+
+    curTokenIs(t) {
+        return this.curToken.type == t;
+    }
+
+
+    peekTokenIs(t) {
+        return this.peekToken.type == t;
+    }
+
+
+    expectPeek(t) {
+        if(this.peekTokenIs(t)){
+            this.nextToken()
+            return true
+        }
+        else {
+            this.errors.push(`expected next token to be ${t}, got ${this.peekToken.type} instead`)
+            return false
+        }
+    }
+
+
     parseProgram() {
         const program = new Program();
         while(this.curToken.type != T.EOF){
@@ -102,7 +124,7 @@ export class Parser {
             return stmt;
         }
         this.nextToken();
-        stmt.value = this.parseExpression(LOWEST);
+        stmt.value = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
             this.nextToken();
         }
@@ -111,7 +133,7 @@ export class Parser {
     parseReturnStatement() {
         const stmt = new ReturnStatement(this.curToken);
         this.nextToken();
-        stmt.returnValue = this.parseExpression(LOWEST);
+        stmt.returnValue = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
             this.nextToken();
         }
@@ -119,33 +141,33 @@ export class Parser {
     }
     parseExpressionStatement() {
         const stmt = new ExpressionStatement(this.curToken);
-        stmt.expression = this.parseExpression(LOWEST);
+        stmt.expression = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
             this.nextToken();
         }
         return stmt;
     }
-    noPrefixParseFnError(t) {
-        const msg = 'no prefix parse function for ' + t + ' found';
-        this.errors.push(msg);
-    }
-    parseExpression(precedence) {
-        const prefix = this.prefixParseFns.get(this.curToken.type).bind(this); //  [Function: parseIdentifier]
+
+
+    parseExpression(precedence = 1) {
+        const prefix = this.prefixFn[this.curToken.type] //  [Function: parseIdentifier]
         if (prefix == null) {
-            this.noPrefixParseFnError(this.curToken.type);
-            return null;
+            this.errors.push(`no prefix parse function for ${this.curToken.type} found`)
+            return null
         }
-        let leftExp = prefix(this.curToken);
+        let leftExp = prefix.bind(this)(this.curToken)
         while(!this.curTokenIs(T.SEMICOLON) && precedence < this.peekPrecedence()){
-            const infix = this.infixParseFns.get(this.peekToken.type).bind(this);
+            const infix = this.infixFn[this.peekToken.type]
             if (infix == null) {
                 return leftExp;
             }
             this.nextToken();
-            leftExp = infix(this.curToken, leftExp);
+            leftExp = infix.bind(this)(this.curToken, leftExp);
         }
         return leftExp;
     }
+
+
     parseIdentifier(curToken) {
         return new Identifier(curToken, curToken.literal);
     }
@@ -161,7 +183,7 @@ export class Parser {
     parsePrefixExpression(curToken) {
         const expression = new PrefixExpression(curToken, curToken.literal);
         this.nextToken();
-        expression.right = this.parseExpression(PREFIX);
+        expression.right = this.parseExpression(6);
         return expression;
     }
     parseInfixExpression(curToken, left) {
@@ -173,7 +195,7 @@ export class Parser {
     }
     parseGroupedExpression() {
         this.nextToken();
-        const exp = this.parseExpression(LOWEST);
+        const exp = this.parseExpression();
         if (!this.expectPeek(T.RPAREN)) {
             return exp;
         }
@@ -185,7 +207,7 @@ export class Parser {
             return expression;
         }
         this.nextToken();
-        expression.condition = this.parseExpression(LOWEST);
+        expression.condition = this.parseExpression();
         if (!this.expectPeek(T.RPAREN)) {
             return expression;
         }
@@ -262,11 +284,11 @@ export class Parser {
             return args;
         }
         this.nextToken();
-        args.push(this.parseExpression(LOWEST));
+        args.push(this.parseExpression());
         while(this.peekTokenIs(T.COMMA)){
             this.nextToken();
             this.nextToken();
-            args.push(this.parseExpression(LOWEST));
+            args.push(this.parseExpression());
         }
         if (!this.expectPeek(T.RPAREN)) {
             return args;
@@ -285,11 +307,11 @@ export class Parser {
             return list;
         }
         this.nextToken();
-        list.push(this.parseExpression(LOWEST));
+        list.push(this.parseExpression());
         while(this.peekTokenIs(T.COMMA)){
             this.nextToken();
             this.nextToken();
-            list.push(this.parseExpression(LOWEST));
+            list.push(this.parseExpression());
         }
         if (!this.expectPeek(end)) {
             return null;
@@ -299,7 +321,7 @@ export class Parser {
     parseIndexExpression(t, left) {
         const exp = new IndexExpression(this.curToken, left);
         this.nextToken();
-        exp.index = this.parseExpression(LOWEST);
+        exp.index = this.parseExpression();
         if (!this.expectPeek(T.RBRACKET)) {
             return t;
         }
@@ -310,12 +332,12 @@ export class Parser {
         hash.pairs = new Map();
         while(!this.peekTokenIs(T.RBRACE)){
             this.nextToken();
-            const key = this.parseExpression(LOWEST);
+            const key = this.parseExpression();
             if (!this.expectPeek(T.COLON)) {
                 return null;
             }
             this.nextToken();
-            const value = this.parseExpression(LOWEST);
+            const value = this.parseExpression();
             hash.pairs.set(key, value);
             if (!this.peekTokenIs(T.RBRACE) && !this.expectPeek(T.COMMA)) {
                 return null;
@@ -325,35 +347,5 @@ export class Parser {
             return null;
         }
         return hash;
-    }
-    peekPrecedence() {
-        const precedence = precedences[this.peekToken.type];
-        return precedence || LOWEST;
-    }
-    curPrecedence() {
-        const precedence = precedences[this.curToken.type];
-        return precedence || LOWEST;
-    }
-    curTokenIs(t) {
-        return this.curToken.type == t;
-    }
-    peekTokenIs(t) {
-        return this.peekToken.type == t;
-    }
-    expectPeek(t) {
-        if (this.peekTokenIs(t)) {
-            this.nextToken();
-            return true;
-        } else {
-            this.peekError(t);
-            return false;
-        }
-    }
-    Errors() {
-        return this.errors;
-    }
-    peekError(t) {
-        const msg = 'expected next token to be ' + t + ' , got ' + this.peekToken.type + ' instead';
-        this.errors.push(msg);
     }
 }

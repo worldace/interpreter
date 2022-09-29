@@ -19,11 +19,6 @@ class Lexer{
     }
 
 
-    prefetch(){
-        return this.input[this.pos+1]
-    }
-
-
     readIdent(){
         const start = this.pos
         while(isLetter(this.c)){
@@ -61,7 +56,12 @@ class Lexer{
     }
 
 
-    NextToken(){
+    prefetch(){
+        return this.input[this.pos+1]
+    }
+
+
+    seek(){
         let tok
 
         this.readWhitespace()

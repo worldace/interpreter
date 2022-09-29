@@ -8,6 +8,8 @@ export const BUILTIN_OBJ = 'BUILTIN';
 export const ARRAY_OBJ = 'ARRAY';
 export const HASH_OBJ = 'HASH';
 export const ERROR_OBJ = 'ERROR';
+
+
 export class String {
     value;
     constructor(value){
