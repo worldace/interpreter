@@ -7,20 +7,6 @@
 </head>
 <body>
 
-
-<!--
-[依存関係]
-lexer.js       : token.js
-parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) (environment.js) builtins.js object.js
-token.js       :
-ast.js         :
-environment.js :
-builtins.js    : object.js
-object.js      :
--->
-
-
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
 let a = 50;
 let b = fn(n){ return n + 1; }
@@ -35,6 +21,18 @@ else{
 <button id="$button">実行 (Ctrl+Enter)</button><br>
 <output id="$output"></output>
 
+
+<!--
+[依存関係]
+lexer.js       : token.js
+parser.js      : (lexer.js) token.js ast.js
+evaluator.js   : (parser.js) (environment.js) builtins.js object.js
+token.js       :
+ast.js         :
+environment.js :
+builtins.js    : object.js
+object.js      :
+-->
 
 
 <script type="module">
@@ -72,8 +70,12 @@ document.onkeydown = function(event){
     }
     else if(event.code === 'Tab'){
         event.preventDefault()
-        //this.value = this.value.substr(0, this.selectionStart) + '    ' + this.value.substr(this.selectionStart)
-        //this.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 13}))
+        /*
+        const before = $textarea.value.substring(0, $textarea.selectionStart)
+        const after  = $textarea.value.substring($textarea.selectionStart)
+        $textarea.value = `${before}    ${after}`
+        $textarea.setSelectionRange(before.length+4, before.length+4)
+        */
     }
 }
 </script>
