@@ -85,13 +85,13 @@ export class Function {
         let out = [];
         let params = [];
         for (const p of this.parameters){
-            params.push(p.string());
+            params.push(p);
         }
         out.push('fn');
         out.push('(');
         out.push(params.join(', '));
         out.push(') {\n');
-        out.push(this.body.string());
+        out.push(this.body);
         out.push('\n}');
         return out.join('');
     }

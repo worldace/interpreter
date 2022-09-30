@@ -27,7 +27,6 @@ function Start(){
 
     Lexer.dump(code)  // 文字列を返すべき
     console.log(program)
-    //console.log(program.statements[0].expression.string())
     for(const v of parser.errors){
         console.log(`[ERROR] ${v}`)
     }

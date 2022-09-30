@@ -11,13 +11,13 @@ export class LetStatement {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push(this.token.literal + ' ');
-        statements.push(this.name.string());
+        statements.push(this.name);
         statements.push(' = ');
         if (this.value != null) {
-            statements.push(this.value.string());
+            statements.push(this.value);
         }
         statements.push(';');
         return statements.join('');
@@ -29,7 +29,7 @@ export class ReturnStatement {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push(this.token.literal + ' ');
         if (this.returnValue != null) {
@@ -46,9 +46,9 @@ export class ExpressionStatement {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         if (this.expression != null) {
-            return this.expression.string();
+            return this.expression;
         }
         return '';
     }
@@ -61,11 +61,11 @@ export class PrefixExpression {
         this.token = token;
         this.operator = operator;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push('(');
         statements.push(this.operator);
-        statements.push(this.right.string());
+        statements.push(this.right);
         statements.push(')');
         return statements.join('');
     }
@@ -80,17 +80,17 @@ export class InfixExpression {
         this.operator = operator;
         this.left = left;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push('(');
         try {
-            statements.push(this.left.string());
+            statements.push(this.left);
         } catch  {
             statements.push(this.left.value);
         }
         statements.push(' ' + this.operator + ' ');
         try {
-            statements.push(this.right.string());
+            statements.push(this.right);
         } catch  {
             statements.push(this.right.value);
         }
@@ -105,7 +105,7 @@ export class Identifier {
         this.token = token;
         this.value = value;
     }
-    string() {
+    toString() {
         return this.value;
     }
 }
@@ -116,7 +116,7 @@ export class StringLiteral {
         this.token = token;
         this.value = value;
     }
-    string() {
+    toString() {
         return this.token.literal;
     }
 }
@@ -126,7 +126,7 @@ export class IntegerLiteral {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         return this.token.literal;
     }
 }
@@ -137,7 +137,7 @@ export class Boolean {
         this.token = token;
         this.value = value;
     }
-    string() {
+    toString() {
         return this.token.literal;
     }
 }
@@ -149,15 +149,15 @@ export class IfExpression {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push('if');
-        statements.push(this.condition.string());
+        statements.push(this.condition);
         statements.push(' ');
-        statements.push(this.consequence.string());
+        statements.push(this.consequence);
         if (this.alternative != null) {
             statements.push('else');
-            statements.push(this.alternative.string());
+            statements.push(this.alternative);
         }
         return statements.join('');
     }
@@ -168,10 +168,10 @@ export class BlockStatement {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         for (const statement of this.statements){
-            statements.push(statement.string());
+            statements.push(statement);
         }
         return statements.join('');
     }
@@ -183,17 +183,17 @@ export class FunctionLiteral {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         let params = [];
         for (const parameter of this.parameters){
-            params.push(parameter.string());
+            params.push(parameter);
         }
         statements.push(this.token.literal);
         statements.push('(');
         statements.push(params.join(', '));
         statements.push(') ');
-        statements.push(this.body.string());
+        statements.push(this.body);
         return statements.join('');
     }
 }
@@ -205,13 +205,13 @@ export class CallExpression {
         this.token = token;
         this.fc = fc;
     }
-    string() {
+    toString() {
         let statements = [];
         let args = [];
         for (const arg of this.arguments){
-            args.push(arg.string());
+            args.push(arg);
         }
-        statements.push(this.fc.string());
+        statements.push(this.fc);
         statements.push('(');
         statements.push(args.join(', '));
         statements.push(')');
@@ -224,11 +224,11 @@ export class ArrayLiteral {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         let elements = [];
         for (const el of this.elements){
-            elements.push(el.string());
+            elements.push(el);
         }
         statements.push('[');
         statements.push(elements.join(', '));
@@ -244,12 +244,12 @@ export class IndexExpression {
         this.token = token;
         this.left = left;
     }
-    string() {
+    toString() {
         let statements = [];
         statements.push('(');
-        statements.push(this.left.string());
+        statements.push(this.left);
         statements.push('[');
-        statements.push(this.index.string());
+        statements.push(this.index);
         statements.push('])');
         return statements.join('');
     }
@@ -260,11 +260,11 @@ export class HashLiteral {
     constructor(token){
         this.token = token;
     }
-    string() {
+    toString() {
         let statements = [];
         let pairs = [];
         for (const [key, value] of this.pairs){
-            pairs.push(key.string() + ':' + value.string());
+            pairs.push(key + ':' + value);
         }
         statements.push('{');
         statements.push(pairs.join(', '));
