@@ -7,6 +7,7 @@
 </head>
 <body>
 
+
 <!--
 [依存関係]
 lexer.js       : token.js
@@ -19,7 +20,8 @@ builtins.js    : object.js
 object.js      :
 -->
 
-<textarea id="$textarea" style="width:600px;height:400px;font-size:16px;">
+
+<textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
 let a = 50;
 let b = fn(n){ return n + 1; }
 let c = b(a);
@@ -30,8 +32,10 @@ else{
     else{ "50 less"; }
 }
 </textarea><br>
-<button id="$button">実行</button><br>
+<button id="$button">実行 (Ctrl+Enter)</button><br>
 <output id="$output"></output>
+
+
 
 <script type="module">
 import { Lexer } from './lexer.js'
@@ -55,11 +59,24 @@ function interpreter(code){
     return Eval(program, env)
 }
 
+
 $button.onclick = function(event){
     $output.textContent = interpreter($textarea.value)?.inspect()
 }
-</script>
 
+
+document.onkeydown = function(event){
+    if(event.code === 'Enter' && event.ctrlKey){
+        event.preventDefault()
+        $button.click()
+    }
+    else if(event.code === 'Tab'){
+        event.preventDefault()
+        //this.value = this.value.substr(0, this.selectionStart) + '    ' + this.value.substr(this.selectionStart)
+        //this.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 13}))
+    }
+}
+</script>
 
 </body>
 </html>
