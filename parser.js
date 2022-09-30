@@ -247,7 +247,7 @@ export class Parser {
         if (!this.expect(T.LPAREN)) {
             return lit;
         }
-        lit.parameters = this.parseFunctionParameters();
+        lit.parameters = this.parseFunctionArguments();
         if (!this.expect(T.LBRACE)) {
             return lit;
         }
@@ -256,7 +256,7 @@ export class Parser {
     }
 
 
-    parseFunctionParameters() {
+    parseFunctionArguments() {
         let identifiers = [];
         if (this.nT.type === T.RPAREN) {
             this.next();
@@ -290,26 +290,6 @@ export class Parser {
     }
 
 
-    parseCallArguments() {
-        let args = [];
-        if (this.nT.type === T.LPAREN) {
-            this.next();
-            return args;
-        }
-        this.next();
-        args.push(this.parseExpression());
-        while(this.nT.type === T.COMMA){
-            this.next();
-            this.next();
-            args.push(this.parseExpression());
-        }
-        if (!this.expect(T.RPAREN)) {
-            return args;
-        }
-        return args;
-    }
-
-
     parseArrayLiteral() {
         const array = new ArrayLiteral(this.T);
         array.elements = this.parseExpressionList(T.RBRACKET);
@@ -337,12 +317,12 @@ export class Parser {
     }
 
 
-    parseIndexExpression(t, left) {
+    parseIndexExpression(token, left) {
         const exp = new IndexExpression(this.T, left);
         this.next();
         exp.index = this.parseExpression();
         if (!this.expect(T.RBRACKET)) {
-            return t;
+            return token;
         }
         return exp;
     }
