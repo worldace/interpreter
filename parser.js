@@ -1,8 +1,8 @@
-import { Token, T } from './token.js'
+import { T } from './token.js'
 import { Program, LetStatement, Identifier, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
 
 
-const priority = {
+const Priority = {
     [T.EQ]       : 2,
     [T.NOTEQ]    : 2,
     [T.LT]       : 3,
@@ -19,11 +19,9 @@ const priority = {
 export class Parser {
     constructor(lexer){
         this.lexer  = lexer
+        this.T      = this.lexer.generate()
+        this.nT     = this.lexer.generate()
         this.errors = []
-        this.T      = new Token(T.DEFAULT, 'DEFAULT')
-        this.nT     = new Token(T.DEFAULT, 'DEFAULT')
-        this.next()
-        this.next()
 
         this.prefixFn = {
             [T.IDENT]    : this.parseIdentifier,
@@ -138,14 +136,14 @@ export class Parser {
     }
 
 
-    parseExpression(precedence = 1) {
+    parseExpression(priority = 1) {
         const prefix = this.prefixFn[this.T.type]
         if (prefix == null) {
             this.errors.push(`no prefix parse function for ${this.T.type} found`)
             return null
         }
         let leftExp = prefix.bind(this)(this.T)
-        while(this.T.type !== T.SEMICOLON && precedence < (priority[this.nT.type] || 1)){
+        while(this.T.type !== T.SEMICOLON && priority < (Priority[this.nT.type] || 1)){
             const infix = this.infixFn[this.nT.type]
             if (infix == null){
                 return leftExp;
@@ -154,6 +152,33 @@ export class Parser {
             leftExp = infix.bind(this)(this.T, leftExp);
         }
         return leftExp;
+    }
+
+
+    parsePrefixExpression(token) {
+        const expression = new PrefixExpression(token, token.literal);
+        this.next();
+        expression.right = this.parseExpression(6);
+        return expression;
+    }
+
+
+    parseInfixExpression(token, left) {
+        const expression = new InfixExpression(token, token.literal, left);
+        const priority = Priority[this.T.type] || 1
+        this.next();
+        expression.right = this.parseExpression(priority);
+        return expression;
+    }
+
+
+    parseGroupedExpression() {
+        this.next();
+        const exp = this.parseExpression();
+        if (!this.expect(T.RPAREN)) {
+            return exp;
+        }
+        return exp;
     }
 
 
@@ -175,30 +200,8 @@ export class Parser {
     }
 
 
-    parsePrefixExpression(token) {
-        const expression = new PrefixExpression(token, token.literal);
-        this.next();
-        expression.right = this.parseExpression(6);
-        return expression;
-    }
-
-
-    parseInfixExpression(token, left) {
-        const expression = new InfixExpression(token, token.literal, left);
-        const precedence = priority[this.T.type] || 1
-        this.next();
-        expression.right = this.parseExpression(precedence);
-        return expression;
-    }
-
-
-    parseGroupedExpression() {
-        this.next();
-        const exp = this.parseExpression();
-        if (!this.expect(T.RPAREN)) {
-            return exp;
-        }
-        return exp;
+    parseBoolean(token) {
+        return new Boolean(token, this.T.type === T.TRUE);
     }
 
 
@@ -275,11 +278,6 @@ export class Parser {
             return identifiers;
         }
         return identifiers;
-    }
-
-
-    parseBoolean(token) {
-        return new Boolean(token, this.T.type === T.TRUE);
     }
 
 

@@ -159,12 +159,13 @@ class Lexer{
 
 
     static dump(code){
+        let result  = []
         const lexer = new Lexer(code)
         while(true){
             const token = lexer.generate()
-            console.log(token)
+            result.push(token)
             if(token.type === T.EOF){
-                return
+                return result
             }
         }
     }

@@ -1,9 +1,0 @@
-[依存関係]
-lexer.js       : token.js
-parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) (environment.js) builtins.js object.js
-token.js       :
-ast.js         :
-environment.js :
-builtins.js    : object.js
-object.js      :
