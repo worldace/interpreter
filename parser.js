@@ -75,41 +75,48 @@ export class Parser {
 
     parse() {
         const program = new Program();
-        while(this.T.type != T.EOF){
-            const stmt = this.parseStatement();
-            if (stmt != null) {
-                program.statements.push(stmt);
+        while(this.T.type !== T.EOF){
+            const stmt = this.parseStatement()
+            if(stmt){
+                program.statements.push(stmt)
             }
-            this.next();
+            this.next()
         }
-        return program;
+        return program
     }
+
+
     parseStatement() {
         switch(this.T.type){
             case T.LET:
-                return this.parseLetStatement();
+                return this.parseLetStatement()
             case T.RETURN:
-                return this.parseReturnStatement();
+                return this.parseReturnStatement()
             default:
-                return this.parseExpressionStatement();
+                return this.parseExpressionStatement()
         }
     }
-    parseLetStatement() {
-        const stmt = new LetStatement(this.T);
-        if (!this.expect(T.IDENT)) {
-            return stmt;
+
+
+    parseLetStatement(){
+        const stmt = new LetStatement(this.T)
+        if(!this.expect(T.IDENT)){
+            return stmt
         }
-        stmt.name = new Identifier(this.T, this.T.literal);
-        if (!this.expect(T.ASSIGN)) {
-            return stmt;
+        stmt.name = new Identifier(this.T, this.T.literal)
+        if(!this.expect(T.ASSIGN)){
+            return stmt
         }
-        this.next();
-        stmt.value = this.parseExpression();
-        if (this.nT.type === T.SEMICOLON) {
-            this.next();
+        this.next()
+        stmt.value = this.parseExpression()
+        if(this.nT.type === T.SEMICOLON){
+            this.next()
         }
-        return stmt;
+
+        return stmt
     }
+
+
     parseReturnStatement() {
         const stmt = new ReturnStatement(this.T);
         this.next();
@@ -119,6 +126,8 @@ export class Parser {
         }
         return stmt;
     }
+
+
     parseExpressionStatement() {
         const stmt = new ExpressionStatement(this.T);
         stmt.expression = this.parseExpression();
@@ -138,7 +147,7 @@ export class Parser {
         let leftExp = prefix.bind(this)(this.T)
         while(this.T.type !== T.SEMICOLON && precedence < (priority[this.nT.type] || 1)){
             const infix = this.infixFn[this.nT.type]
-            if (infix == null) {
+            if (infix == null){
                 return leftExp;
             }
             this.next();
@@ -151,21 +160,29 @@ export class Parser {
     parseIdentifier(token) {
         return new Identifier(token, token.literal);
     }
+
+
     parseStringLiteral() {
         return new StringLiteral(this.T, this.T.literal);
     }
+
+
     parseIntegerLiteral(token) {
         const lit = new IntegerLiteral(token);
         const value = Number(token.literal);
         lit.value = value;
         return lit;
     }
+
+
     parsePrefixExpression(token) {
         const expression = new PrefixExpression(token, token.literal);
         this.next();
         expression.right = this.parseExpression(6);
         return expression;
     }
+
+
     parseInfixExpression(token, left) {
         const expression = new InfixExpression(token, token.literal, left);
         const precedence = priority[this.T.type] || 1
@@ -173,6 +190,8 @@ export class Parser {
         expression.right = this.parseExpression(precedence);
         return expression;
     }
+
+
     parseGroupedExpression() {
         this.next();
         const exp = this.parseExpression();
@@ -181,6 +200,8 @@ export class Parser {
         }
         return exp;
     }
+
+
     parseIfExpression(token) {
         const expression = new IfExpression(token);
         if (!this.expect(T.LPAREN)) {
@@ -204,6 +225,8 @@ export class Parser {
         }
         return expression;
     }
+
+
     parseBlockStatement(token) {
         const block = new BlockStatement(token);
         block.statements = [];
@@ -217,6 +240,8 @@ export class Parser {
         }
         return block;
     }
+
+
     parseFunctionLiteral(token) {
         const lit = new FunctionLiteral(token);
         if (!this.expect(T.LPAREN)) {
@@ -229,6 +254,8 @@ export class Parser {
         lit.body = this.parseBlockStatement(token);
         return lit;
     }
+
+
     parseFunctionParameters() {
         let identifiers = [];
         if (this.nT.type === T.RPAREN) {
@@ -249,14 +276,20 @@ export class Parser {
         }
         return identifiers;
     }
+
+
     parseBoolean(token) {
         return new Boolean(token, this.T.type === T.TRUE);
     }
+
+
     parseCallExpression(token, fc) {
         const exp = new CallExpression(token, fc);
         exp.arguments = this.parseExpressionList(T.RPAREN);
         return exp;
     }
+
+
     parseCallArguments() {
         let args = [];
         if (this.nT.type === T.LPAREN) {
@@ -275,11 +308,15 @@ export class Parser {
         }
         return args;
     }
+
+
     parseArrayLiteral() {
         const array = new ArrayLiteral(this.T);
         array.elements = this.parseExpressionList(T.RBRACKET);
         return array;
     }
+
+
     parseExpressionList(end) {
         let list = [];
         if (this.nT.type === end) {
@@ -298,6 +335,8 @@ export class Parser {
         }
         return list;
     }
+
+
     parseIndexExpression(t, left) {
         const exp = new IndexExpression(this.T, left);
         this.next();
@@ -307,6 +346,8 @@ export class Parser {
         }
         return exp;
     }
+
+
     parseHashLiteral() {
         const hash = new HashLiteral(this.T);
         hash.pairs = new Map();

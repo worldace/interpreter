@@ -11,12 +11,9 @@ export class LetStatement {
     constructor(token){
         this.token = token;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         let statements = [];
-        statements.push(this.tokenLiteral() + ' ');
+        statements.push(this.token.literal + ' ');
         statements.push(this.name.string());
         statements.push(' = ');
         if (this.value != null) {
@@ -32,12 +29,9 @@ export class ReturnStatement {
     constructor(token){
         this.token = token;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         let statements = [];
-        statements.push(this.tokenLiteral() + ' ');
+        statements.push(this.token.literal + ' ');
         if (this.returnValue != null) {
             statements.push(this.returnValue);
         }
@@ -51,9 +45,6 @@ export class ExpressionStatement {
     value;
     constructor(token){
         this.token = token;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         if (this.expression != null) {
@@ -69,9 +60,6 @@ export class PrefixExpression {
     constructor(token, operator){
         this.token = token;
         this.operator = operator;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];
@@ -91,9 +79,6 @@ export class InfixExpression {
         this.token = token;
         this.operator = operator;
         this.left = left;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];
@@ -120,9 +105,6 @@ export class Identifier {
         this.token = token;
         this.value = value;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         return this.value;
     }
@@ -134,9 +116,6 @@ export class StringLiteral {
         this.token = token;
         this.value = value;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         return this.token.literal;
     }
@@ -146,9 +125,6 @@ export class IntegerLiteral {
     value;
     constructor(token){
         this.token = token;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         return this.token.literal;
@@ -161,9 +137,6 @@ export class Boolean {
         this.token = token;
         this.value = value;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         return this.token.literal;
     }
@@ -175,9 +148,6 @@ export class IfExpression {
     alternative;
     constructor(token){
         this.token = token;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];
@@ -198,9 +168,6 @@ export class BlockStatement {
     constructor(token){
         this.token = token;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         let statements = [];
         for (const statement of this.statements){
@@ -216,16 +183,13 @@ export class FunctionLiteral {
     constructor(token){
         this.token = token;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         let statements = [];
         let params = [];
         for (const parameter of this.parameters){
             params.push(parameter.string());
         }
-        statements.push(this.tokenLiteral());
+        statements.push(this.token.literal);
         statements.push('(');
         statements.push(params.join(', '));
         statements.push(') ');
@@ -240,9 +204,6 @@ export class CallExpression {
     constructor(token, fc){
         this.token = token;
         this.fc = fc;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];
@@ -262,9 +223,6 @@ export class ArrayLiteral {
     elements;
     constructor(token){
         this.token = token;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];
@@ -286,9 +244,6 @@ export class IndexExpression {
         this.token = token;
         this.left = left;
     }
-    tokenLiteral() {
-        return this.token.literal;
-    }
     string() {
         let statements = [];
         statements.push('(');
@@ -304,9 +259,6 @@ export class HashLiteral {
     pairs;
     constructor(token){
         this.token = token;
-    }
-    tokenLiteral() {
-        return this.token.literal;
     }
     string() {
         let statements = [];

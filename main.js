@@ -5,7 +5,7 @@ import { Environment } from './environment.js'
 
 
 //const code = '(5 + 10 * 2 + 15 / 3) * 2 + -10;';
-const code = `
+let code = `
 let a = 50;
 let b = fn(n){ return n + 1; }
 let c = b(a);
@@ -25,11 +25,11 @@ function Start(){
     const parser  = new Parser(lexer)
     const program = parser.parse()
 
-    Lexer.dump(code)
+    Lexer.dump(code)  // 文字列を返すべき
     console.log(program)
     //console.log(program.statements[0].expression.string())
     for(const v of parser.errors){
-        console.log(`\t${v}\n`)
+        console.log(`[ERROR] ${v}`)
     }
 
     const env = new Environment(new Map())
