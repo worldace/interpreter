@@ -61,7 +61,7 @@ class Lexer{
     }
 
 
-    seek(){
+    generate(){
         let tok
 
         this.readWhitespace()
@@ -155,6 +155,18 @@ class Lexer{
 
         this.read()
         return tok
+    }
+
+
+    static dump(code){
+        const lexer = new Lexer(code)
+        while(true){
+            const token = lexer.generate()
+            console.log(token)
+            if(token.type === T.EOF){
+                return
+            }
+        }
     }
 }
 

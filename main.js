@@ -1,5 +1,4 @@
-import { StartLexer, StartParser } from './repl.js'
+import { Start } from './repl.js'
 
 
-StartLexer()
-StartParser()
+Start()

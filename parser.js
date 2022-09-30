@@ -22,8 +22,8 @@ export class Parser {
         this.errors    = []
         this.curToken  = new Token(T.DEFAULT, 'DEFAULT')
         this.peekToken = new Token(T.DEFAULT, 'DEFAULT')
-        this.nextToken()
-        this.nextToken()
+        this.next()
+        this.next()
 
         this.prefixFn = {
             [T.IDENT]    : this.parseIdentifier,
@@ -55,19 +55,9 @@ export class Parser {
     }
 
 
-    nextToken() {
+    next() {
         this.curToken = this.peekToken;
-        this.peekToken = this.lexer.seek();
-    }
-
-
-    peekPrecedence() {
-        return priority[this.peekToken.type] || 1
-    }
-
-
-    curPrecedence() {
-        return priority[this.curToken.type] || 1
+        this.peekToken = this.lexer.generate();
     }
 
 
@@ -81,26 +71,26 @@ export class Parser {
     }
 
 
-    expectPeek(t) {
-        if(this.peekTokenIs(t)){
-            this.nextToken()
+    expect(type){
+        if(this.peekTokenIs(type)){
+            this.next()
             return true
         }
         else {
-            this.errors.push(`expected next token to be ${t}, got ${this.peekToken.type} instead`)
+            this.errors.push(`expected next token to be ${type}, got ${this.peekToken.type} instead`)
             return false
         }
     }
 
 
-    parseProgram() {
+    parse() {
         const program = new Program();
         while(this.curToken.type != T.EOF){
             const stmt = this.parseStatement();
             if (stmt != null) {
                 program.statements.push(stmt);
             }
-            this.nextToken();
+            this.next();
         }
         return program;
     }
@@ -116,26 +106,26 @@ export class Parser {
     }
     parseLetStatement() {
         const stmt = new LetStatement(this.curToken);
-        if (!this.expectPeek(T.IDENT)) {
+        if (!this.expect(T.IDENT)) {
             return stmt;
         }
         stmt.name = new Identifier(this.curToken, this.curToken.literal);
-        if (!this.expectPeek(T.ASSIGN)) {
+        if (!this.expect(T.ASSIGN)) {
             return stmt;
         }
-        this.nextToken();
+        this.next();
         stmt.value = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
-            this.nextToken();
+            this.next();
         }
         return stmt;
     }
     parseReturnStatement() {
         const stmt = new ReturnStatement(this.curToken);
-        this.nextToken();
+        this.next();
         stmt.returnValue = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
-            this.nextToken();
+            this.next();
         }
         return stmt;
     }
@@ -143,25 +133,25 @@ export class Parser {
         const stmt = new ExpressionStatement(this.curToken);
         stmt.expression = this.parseExpression();
         if (this.peekTokenIs(T.SEMICOLON)) {
-            this.nextToken();
+            this.next();
         }
         return stmt;
     }
 
 
     parseExpression(precedence = 1) {
-        const prefix = this.prefixFn[this.curToken.type] //  [Function: parseIdentifier]
+        const prefix = this.prefixFn[this.curToken.type]
         if (prefix == null) {
             this.errors.push(`no prefix parse function for ${this.curToken.type} found`)
             return null
         }
         let leftExp = prefix.bind(this)(this.curToken)
-        while(!this.curTokenIs(T.SEMICOLON) && precedence < this.peekPrecedence()){
+        while(!this.curTokenIs(T.SEMICOLON) && precedence < (priority[this.peekToken.type] || 1)){
             const infix = this.infixFn[this.peekToken.type]
             if (infix == null) {
                 return leftExp;
             }
-            this.nextToken();
+            this.next();
             leftExp = infix.bind(this)(this.curToken, leftExp);
         }
         return leftExp;
@@ -182,42 +172,42 @@ export class Parser {
     }
     parsePrefixExpression(curToken) {
         const expression = new PrefixExpression(curToken, curToken.literal);
-        this.nextToken();
+        this.next();
         expression.right = this.parseExpression(6);
         return expression;
     }
     parseInfixExpression(curToken, left) {
         const expression = new InfixExpression(curToken, curToken.literal, left);
-        const precedence = this.curPrecedence();
-        this.nextToken();
+        const precedence = priority[this.curToken.type] || 1
+        this.next();
         expression.right = this.parseExpression(precedence);
         return expression;
     }
     parseGroupedExpression() {
-        this.nextToken();
+        this.next();
         const exp = this.parseExpression();
-        if (!this.expectPeek(T.RPAREN)) {
+        if (!this.expect(T.RPAREN)) {
             return exp;
         }
         return exp;
     }
     parseIfExpression(curToken) {
         const expression = new IfExpression(curToken);
-        if (!this.expectPeek(T.LPAREN)) {
+        if (!this.expect(T.LPAREN)) {
             return expression;
         }
-        this.nextToken();
+        this.next();
         expression.condition = this.parseExpression();
-        if (!this.expectPeek(T.RPAREN)) {
+        if (!this.expect(T.RPAREN)) {
             return expression;
         }
-        if (!this.expectPeek(T.LBRACE)) {
+        if (!this.expect(T.LBRACE)) {
             return expression;
         }
         expression.consequence = this.parseBlockStatement(this.curToken);
         if (this.peekTokenIs(T.ELSE)) {
-            this.nextToken();
-            if (!this.expectPeek(T.LBRACE)) {
+            this.next();
+            if (!this.expect(T.LBRACE)) {
                 return expression;
             }
             expression.alternative = this.parseBlockStatement(this.curToken);
@@ -227,23 +217,23 @@ export class Parser {
     parseBlockStatement(curToken) {
         const block = new BlockStatement(curToken);
         block.statements = [];
-        this.nextToken();
+        this.next();
         while(!this.curTokenIs(T.RBRACE) && !this.curTokenIs(T.EOF)){
             const stmt = this.parseStatement();
             if (stmt != null) {
                 block.statements.push(stmt);
             }
-            this.nextToken();
+            this.next();
         }
         return block;
     }
     parseFunctionLiteral(curToken) {
         const lit = new FunctionLiteral(curToken);
-        if (!this.expectPeek(T.LPAREN)) {
+        if (!this.expect(T.LPAREN)) {
             return lit;
         }
         lit.parameters = this.parseFunctionParameters();
-        if (!this.expectPeek(T.LBRACE)) {
+        if (!this.expect(T.LBRACE)) {
             return lit;
         }
         lit.body = this.parseBlockStatement(curToken);
@@ -252,19 +242,19 @@ export class Parser {
     parseFunctionParameters() {
         let identifiers = [];
         if (this.peekTokenIs(T.RPAREN)) {
-            this.nextToken();
+            this.next();
             return identifiers;
         }
-        this.nextToken();
+        this.next();
         const ident = new Identifier(this.curToken, this.curToken.literal);
         identifiers.push(ident);
         while(this.peekTokenIs(T.COMMA)){
-            this.nextToken();
-            this.nextToken();
+            this.next();
+            this.next();
             const ident1 = new Identifier(this.curToken, this.curToken.literal);
             identifiers.push(ident1);
         }
-        if (!this.expectPeek(T.RPAREN)) {
+        if (!this.expect(T.RPAREN)) {
             return identifiers;
         }
         return identifiers;
@@ -280,17 +270,17 @@ export class Parser {
     parseCallArguments() {
         let args = [];
         if (this.peekTokenIs(T.LPAREN)) {
-            this.nextToken();
+            this.next();
             return args;
         }
-        this.nextToken();
+        this.next();
         args.push(this.parseExpression());
         while(this.peekTokenIs(T.COMMA)){
-            this.nextToken();
-            this.nextToken();
+            this.next();
+            this.next();
             args.push(this.parseExpression());
         }
-        if (!this.expectPeek(T.RPAREN)) {
+        if (!this.expect(T.RPAREN)) {
             return args;
         }
         return args;
@@ -303,26 +293,26 @@ export class Parser {
     parseExpressionList(end) {
         let list = [];
         if (this.peekTokenIs(end)) {
-            this.nextToken();
+            this.next();
             return list;
         }
-        this.nextToken();
+        this.next();
         list.push(this.parseExpression());
         while(this.peekTokenIs(T.COMMA)){
-            this.nextToken();
-            this.nextToken();
+            this.next();
+            this.next();
             list.push(this.parseExpression());
         }
-        if (!this.expectPeek(end)) {
+        if (!this.expect(end)) {
             return null;
         }
         return list;
     }
     parseIndexExpression(t, left) {
         const exp = new IndexExpression(this.curToken, left);
-        this.nextToken();
+        this.next();
         exp.index = this.parseExpression();
-        if (!this.expectPeek(T.RBRACKET)) {
+        if (!this.expect(T.RBRACKET)) {
             return t;
         }
         return exp;
@@ -331,19 +321,19 @@ export class Parser {
         const hash = new HashLiteral(this.curToken);
         hash.pairs = new Map();
         while(!this.peekTokenIs(T.RBRACE)){
-            this.nextToken();
+            this.next();
             const key = this.parseExpression();
-            if (!this.expectPeek(T.COLON)) {
+            if (!this.expect(T.COLON)) {
                 return null;
             }
-            this.nextToken();
+            this.next();
             const value = this.parseExpression();
             hash.pairs.set(key, value);
-            if (!this.peekTokenIs(T.RBRACE) && !this.expectPeek(T.COMMA)) {
+            if (!this.peekTokenIs(T.RBRACE) && !this.expect(T.COMMA)) {
                 return null;
             }
         }
-        if (!this.expectPeek(T.RBRACE)) {
+        if (!this.expect(T.RBRACE)) {
             return null;
         }
         return hash;
