@@ -26,10 +26,10 @@ else{
 [依存関係]
 lexer.js       : token.js
 parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) (environment.js) builtins.js object.js
+evaluator.js   : (parser.js) builtins.js object.js
+
 token.js       :
 ast.js         :
-environment.js :
 builtins.js    : object.js
 object.js      :
 -->
@@ -39,7 +39,6 @@ object.js      :
 import { Lexer } from './lexer.js'
 import { Parser } from './parser.js'
 import { Eval } from './evaluator.js'
-import { Environment } from './environment.js'
 
 
 function interpreter(code){
@@ -53,8 +52,7 @@ function interpreter(code){
         console.log(`[ERROR] ${v}`)
     }
 
-    const env = new Environment(new Map())
-    return Eval(program, env)
+    return Eval(program)
 }
 
 

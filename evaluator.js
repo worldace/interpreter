@@ -2,7 +2,7 @@ import { builtins } from './builtins.js';
 import { Integer, Boolean, Null, ReturnValue, Error, INTEGER_OBJ, RETURN_VALUE_OBJ, ERROR_OBJ, Function, String, STRING_OBJ, Array, ARRAY_OBJ, Hash, HASH_OBJ } from './object.js';
 
 
-export const Eval = (node, env)=>{
+export const Eval = (node, env = new Environment(new Map))=>{
     switch(node.constructor.name){
         case 'Program':
             return evalProgram(node, env);
@@ -155,7 +155,7 @@ const applyFunction = (fn, args)=>{
     }
 };
 const extendFunctionEnv = (fn, args)=>{
-    const env = fn.env.newEnclosedEnvironment(fn.env);
+    const env = new Environment(new Map(), fn.env)
     fn.parameters.forEach((param, paramIdx)=>{
         env.set(param.value, args[paramIdx]);
     });
@@ -329,3 +329,24 @@ const isError = (obj)=>{
     }
     return false;
 };
+
+
+class Environment{
+    store;
+    outer;
+    constructor(store, outer = null){
+        this.store = store;
+        this.outer = outer;
+    }
+    get(name) {
+        const obj = this.store.get(name);
+        if (!obj && this.outer != null) {
+            return this.outer.get(name);
+        }
+        return obj;
+    }
+    set(name, val) {
+        this.store.set(name, val);
+        return val;
+    }
+}
