@@ -1,140 +1,140 @@
 
 
 export class Program {
-    statements;
+    statements
     constructor(statements = []){
-        this.statements = statements;
+        this.statements = statements
     }
 }
 
 
 export class LetStatement {
-    token;
-    name;
-    value;
+    token
+    name
+    value
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class ReturnStatement {
-    token;
-    returnValue;
+    token
+    returnValue
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class ExpressionStatement {
-    token;
-    expression;
-    value;
+    token
+    expression
+    value
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class PrefixExpression {
-    token;
-    operator;
-    right;
+    token
+    operator
+    right
     constructor(token, operator){
-        this.token = token;
-        this.operator = operator;
+        this.token = token
+        this.operator = operator
     }
 }
 export class InfixExpression {
-    token;
-    operator;
-    left;
-    right;
+    token
+    operator
+    left
+    right
     constructor(token, operator, left){
-        this.token = token;
-        this.operator = operator;
-        this.left = left;
+        this.token = token
+        this.operator = operator
+        this.left = left
     }
 }
 export class Identifier {
-    token;
-    value;
+    token
+    value
     constructor(token, value){
-        this.token = token;
-        this.value = value;
+        this.token = token
+        this.value = value
     }
 }
 export class StringLiteral {
-    token;
-    value;
+    token
+    value
     constructor(token, value){
-        this.token = token;
-        this.value = value;
+        this.token = token
+        this.value = value
     }
 }
 export class IntegerLiteral {
-    token;
-    value;
+    token
+    value
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class Boolean {
-    token;
-    value;
+    token
+    value
     constructor(token, value){
-        this.token = token;
-        this.value = value;
+        this.token = token
+        this.value = value
     }
 }
 export class IfExpression {
-    token;
-    condition;
-    consequence;
-    alternative;
+    token
+    condition
+    consequence
+    alternative
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class BlockStatement {
-    token;
-    statements;
+    token
+    statements
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class FunctionLiteral {
-    token;
-    parameters;
-    body;
+    token
+    parameters
+    body
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class CallExpression {
-    token;
-    fc;
-    arguments;
+    token
+    fc
+    arguments
     constructor(token, fc){
-        this.token = token;
-        this.fc = fc;
+        this.token = token
+        this.fc = fc
     }
 }
 export class ArrayLiteral {
-    token;
-    elements;
+    token
+    elements
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }
 export class IndexExpression {
-    token;
-    left;
-    index;
+    token
+    left
+    index
     constructor(token, left){
-        this.token = token;
-        this.left = left;
+        this.token = token
+        this.left = left
     }
 }
 export class HashLiteral {
-    token;
-    pairs;
+    token
+    pairs
     constructor(token){
-        this.token = token;
+        this.token = token
     }
 }

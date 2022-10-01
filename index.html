@@ -22,19 +22,6 @@ else{
 <output id="$output"></output>
 
 
-<!--
-[依存関係]
-lexer.js       : token.js
-parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) object.js functions.js
-
-token.js       :
-ast.js         :
-object.js      :
-functions.js   : object.js
--->
-
-
 <script type="module">
 import { Lexer } from './lexer.js'
 import { Parser } from './parser.js'
@@ -77,6 +64,19 @@ document.onkeydown = function(event){
     }
 }
 </script>
+
+
+<!--
+[依存関係]
+lexer.js       : token.js
+parser.js      : (lexer.js) token.js ast.js
+evaluator.js   : (parser.js) object.js functions.js
+
+token.js       :
+ast.js         :
+object.js      :
+functions.js   : object.js
+-->
 
 </body>
 </html>
