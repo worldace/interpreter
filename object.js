@@ -1,14 +1,3 @@
-export const STRING_OBJ = 'STRING';
-export const INTEGER_OBJ = 'INTEGER';
-export const BOOLEAN_OBJ = 'BOOLEAN';
-export const NULL_OBJ = 'NULL';
-export const RETURN_VALUE_OBJ = 'RETURN_VALUE';
-export const FUNCTION_OBJ = 'FUNCTION';
-export const BUILTIN_OBJ = 'BUILTIN';
-export const ARRAY_OBJ = 'ARRAY';
-export const HASH_OBJ = 'HASH';
-export const ERROR_OBJ = 'ERROR';
-
 
 export class String {
     value;
@@ -19,7 +8,7 @@ export class String {
         return this.value;
     }
     type() {
-        return STRING_OBJ;
+        return 'string'
     }
 }
 export class Integer {
@@ -28,10 +17,10 @@ export class Integer {
         this.value = value;
     }
     inspect() {
-        console.log(this.value);
+        return this.value;
     }
     type() {
-        return INTEGER_OBJ;
+        return 'integer'
     }
     hashKey() {
         return {
@@ -46,18 +35,18 @@ export class Boolean {
         this.value = value;
     }
     inspect() {
-        console.log(this.value);
+        return this.value;
     }
     type() {
-        return BOOLEAN_OBJ;
+        return 'boolean'
     }
 }
 export class Null {
     inspect() {
-        console.log('null');
+        return 'null';
     }
     type() {
-        return NULL_OBJ;
+        return 'null'
     }
 }
 export class ReturnValue {
@@ -66,10 +55,10 @@ export class ReturnValue {
         this.value = value;
     }
     inspect() {
-        console.log(this.value.inspect());
+        return this.value.inspect();
     }
     type() {
-        return RETURN_VALUE_OBJ;
+        return 'return'
     }
 }
 export class Function {
@@ -96,7 +85,7 @@ export class Function {
         return out.join('');
     }
     type() {
-        return FUNCTION_OBJ;
+        return 'function'
     }
 }
 export class Builtin {
@@ -108,7 +97,7 @@ export class Builtin {
         return 'builtin function';
     }
     type() {
-        return BUILTIN_OBJ;
+        return 'builtin'
     }
 }
 export class Array {
@@ -128,7 +117,7 @@ export class Array {
         return out.join('');
     }
     type() {
-        return ARRAY_OBJ;
+        return 'array'
     }
 }
 export class Hash {
@@ -147,6 +136,9 @@ export class Hash {
         out.push('}');
         return out.join('');
     }
+    type(){
+        return 'hash'
+    }
 }
 export class Error {
     message;
@@ -157,6 +149,6 @@ export class Error {
         return 'ERROR: ' + this.message;
     }
     type() {
-        return ERROR_OBJ;
+        return 'error'
     }
 }

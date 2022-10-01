@@ -1,5 +1,5 @@
 import { Functions } from './functions.js';
-import { Integer, Boolean, Null, ReturnValue, Error, INTEGER_OBJ, RETURN_VALUE_OBJ, ERROR_OBJ, Function, String, STRING_OBJ, Array, ARRAY_OBJ, Hash, HASH_OBJ } from './object.js';
+import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Hash } from './object.js';
 
 
 export const Eval = (node, env = new Environment(new Map))=>{
@@ -120,7 +120,7 @@ const evalBlockStatement = (block, env)=>{
         result = Eval(statement, env);
         if (result != null) {
             const rt = result.type();
-            if (rt == RETURN_VALUE_OBJ || rt == ERROR_OBJ) {
+            if (rt == 'return' || rt == 'error') {
                 return result;
             }
         }
@@ -190,14 +190,14 @@ const evalBangOperatorExpression = (right)=>{
     }
 };
 const evalMinusPrefixOperatorExpression = (right)=>{
-    if (right.type() != INTEGER_OBJ) {
+    if (right.type() != 'integer') {
         return new Error(`unknown operator: -${right.type()}`);
     }
     const value = right.value;
     return new Integer(-value);
 };
 const evalInfixExpression = (operator, left, right)=>{
-    if (left.type() == INTEGER_OBJ && right.type() == INTEGER_OBJ) {
+    if (left.type() == 'integer' && right.type() == 'integer') {
         return evalIntegerInfixExpression(operator, left, right);
     }
     if (operator == '==') {
@@ -209,7 +209,7 @@ const evalInfixExpression = (operator, left, right)=>{
     if (left.type() != right.type()) {
         return new Error(`type mismatch: ${left.type()} ${operator} ${right.type()}`);
     }
-    if (left.type() == STRING_OBJ && right.type() == STRING_OBJ) {
+    if (left.type() == 'string' && right.type() == 'string') {
         return evalStringInfixExpression(operator, left, right);
     }
     return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`);
@@ -269,9 +269,9 @@ const evalIdentifier = (node, env)=>{
     if (builtin) return builtin;
 };
 const evalIndexExpression = (left, index)=>{
-    if (left.type() == ARRAY_OBJ && index.type() == INTEGER_OBJ) {
+    if (left.type() == 'array' && index.type() == 'integer') {
         return evalArrayIndexExpression(left, index);
-    } else if (left.type() == HASH_OBJ) {
+    } else if (left.type() == 'hash') {
         return evalHashIndexExpression(left, index);
     } else {
         return new Error(`index operator not supported: ${left.type()}`);
@@ -325,7 +325,7 @@ const isTruthy = (obj)=>{
 };
 const isError = (obj)=>{
     if (obj != null) {
-        return obj.type() == ERROR_OBJ;
+        return obj.type() == 'error'
     }
     return false;
 };

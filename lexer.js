@@ -4,7 +4,7 @@ import {T, Token, keyword} from './token.js'
 class Lexer{
 
     constructor(input){
-        this.input = input + ';'
+        this.input = input
         this.c     = ''
         this.index = 0
         this.pos   = 0
