@@ -26,12 +26,12 @@ else{
 [依存関係]
 lexer.js       : token.js
 parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) functions.js object.js
+evaluator.js   : (parser.js) object.js functions.js
 
 token.js       :
 ast.js         :
-functions.js    : object.js
 object.js      :
+functions.js   : object.js
 -->
 
 

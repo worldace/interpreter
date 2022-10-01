@@ -116,23 +116,23 @@ export class Parser {
 
 
     parseReturnStatement() {
-        const stmt = new ReturnStatement(this.T);
-        this.next();
-        stmt.returnValue = this.parseExpression();
+        const stmt = new ReturnStatement(this.T)
+        this.next()
+        stmt.returnValue = this.parseExpression()
         if (this.nT.type === T.SEMICOLON) {
-            this.next();
+            this.next()
         }
-        return stmt;
+        return stmt
     }
 
 
     parseExpressionStatement() {
-        const stmt = new ExpressionStatement(this.T);
-        stmt.expression = this.parseExpression();
+        const stmt = new ExpressionStatement(this.T)
+        stmt.expression = this.parseExpression()
         if (this.nT.type === T.SEMICOLON) {
-            this.next();
+            this.next()
         }
-        return stmt;
+        return stmt
     }
 
 
@@ -146,205 +146,205 @@ export class Parser {
         while(this.T.type !== T.SEMICOLON && priority < (Priority[this.nT.type] || 1)){
             const infix = this.infixFn[this.nT.type]
             if (infix == null){
-                return leftExp;
+                return leftExp
             }
-            this.next();
-            leftExp = infix.bind(this)(this.T, leftExp);
+            this.next()
+            leftExp = infix.bind(this)(this.T, leftExp)
         }
-        return leftExp;
+        return leftExp
     }
 
 
     parsePrefixExpression(token) {
-        const expression = new PrefixExpression(token, token.literal);
-        this.next();
-        expression.right = this.parseExpression(6);
-        return expression;
+        const expression = new PrefixExpression(token, token.literal)
+        this.next()
+        expression.right = this.parseExpression(6)
+        return expression
     }
 
 
     parseInfixExpression(token, left) {
-        const expression = new InfixExpression(token, token.literal, left);
+        const expression = new InfixExpression(token, token.literal, left)
         const priority = Priority[this.T.type] || 1
-        this.next();
-        expression.right = this.parseExpression(priority);
-        return expression;
+        this.next()
+        expression.right = this.parseExpression(priority)
+        return expression
     }
 
 
     parseGroupedExpression() {
-        this.next();
-        const exp = this.parseExpression();
+        this.next()
+        const exp = this.parseExpression()
         if (!this.expect(T.RPAREN)) {
-            return exp;
+            return exp
         }
-        return exp;
+        return exp
     }
 
 
     parseIdentifier(token) {
-        return new Identifier(token, token.literal);
+        return new Identifier(token, token.literal)
     }
 
 
     parseStringLiteral() {
-        return new StringLiteral(this.T, this.T.literal);
+        return new StringLiteral(this.T, this.T.literal)
     }
 
 
     parseIntegerLiteral(token) {
-        const lit = new IntegerLiteral(token);
-        const value = Number(token.literal);
-        lit.value = value;
-        return lit;
+        const lit = new IntegerLiteral(token)
+        const value = Number(token.literal)
+        lit.value = value
+        return lit
     }
 
 
     parseBoolean(token) {
-        return new Boolean(token, this.T.type === T.TRUE);
+        return new Boolean(token, this.T.type === T.TRUE)
     }
 
 
     parseIfExpression(token) {
-        const expression = new IfExpression(token);
+        const expression = new IfExpression(token)
         if (!this.expect(T.LPAREN)) {
-            return expression;
+            return expression
         }
-        this.next();
-        expression.condition = this.parseExpression();
+        this.next()
+        expression.condition = this.parseExpression()
         if (!this.expect(T.RPAREN)) {
-            return expression;
+            return expression
         }
         if (!this.expect(T.LBRACE)) {
-            return expression;
+            return expression
         }
-        expression.consequence = this.parseBlockStatement(this.T);
+        expression.consequence = this.parseBlockStatement(this.T)
         if (this.nT.type === T.ELSE) {
-            this.next();
+            this.next()
             if (!this.expect(T.LBRACE)) {
-                return expression;
+                return expression
             }
-            expression.alternative = this.parseBlockStatement(this.T);
+            expression.alternative = this.parseBlockStatement(this.T)
         }
-        return expression;
+        return expression
     }
 
 
     parseBlockStatement(token) {
-        const block = new BlockStatement(token);
-        block.statements = [];
-        this.next();
+        const block = new BlockStatement(token)
+        block.statements = []
+        this.next()
         while(this.T.type !== T.RBRACE && this.T.type !== T.EOF){
-            const stmt = this.parseStatement();
+            const stmt = this.parseStatement()
             if (stmt != null) {
-                block.statements.push(stmt);
+                block.statements.push(stmt)
             }
-            this.next();
+            this.next()
         }
-        return block;
+        return block
     }
 
 
     parseFunctionLiteral(token) {
-        const lit = new FunctionLiteral(token);
+        const lit = new FunctionLiteral(token)
         if (!this.expect(T.LPAREN)) {
-            return lit;
+            return lit
         }
-        lit.parameters = this.parseFunctionArguments();
+        lit.parameters = this.parseFunctionArguments()
         if (!this.expect(T.LBRACE)) {
-            return lit;
+            return lit
         }
-        lit.body = this.parseBlockStatement(token);
-        return lit;
+        lit.body = this.parseBlockStatement(token)
+        return lit
     }
 
 
     parseFunctionArguments() {
-        let identifiers = [];
+        const args = []
         if (this.nT.type === T.RPAREN) {
-            this.next();
-            return identifiers;
+            this.next()
+            return args
         }
-        this.next();
-        const ident = new Identifier(this.T, this.T.literal);
-        identifiers.push(ident);
+        this.next()
+        const ident = new Identifier(this.T, this.T.literal)
+        args.push(ident)
         while(this.nT.type === T.COMMA){
-            this.next();
-            this.next();
-            const ident1 = new Identifier(this.T, this.T.literal);
-            identifiers.push(ident1);
+            this.next()
+            this.next()
+            const ident1 = new Identifier(this.T, this.T.literal)
+            args.push(ident1)
         }
         if (!this.expect(T.RPAREN)) {
-            return identifiers;
+            return args
         }
-        return identifiers;
+        return args
     }
 
 
     parseCallExpression(token, fc) {
-        const exp = new CallExpression(token, fc);
-        exp.arguments = this.parseExpressionList(T.RPAREN);
-        return exp;
+        const exp = new CallExpression(token, fc)
+        exp.arguments = this.parseExpressionList(T.RPAREN)
+        return exp
     }
 
 
     parseArrayLiteral() {
-        const array = new ArrayLiteral(this.T);
-        array.elements = this.parseExpressionList(T.RBRACKET);
-        return array;
+        const array = new ArrayLiteral(this.T)
+        array.elements = this.parseExpressionList(T.RBRACKET)
+        return array
     }
 
 
     parseExpressionList(end) {
-        let list = [];
+        let list = []
         if (this.nT.type === end) {
-            this.next();
-            return list;
+            this.next()
+            return list
         }
-        this.next();
-        list.push(this.parseExpression());
+        this.next()
+        list.push(this.parseExpression())
         while(this.nT.type === T.COMMA){
-            this.next();
-            this.next();
-            list.push(this.parseExpression());
+            this.next()
+            this.next()
+            list.push(this.parseExpression())
         }
         if (!this.expect(end)) {
-            return null;
+            return null
         }
-        return list;
+        return list
     }
 
 
     parseIndexExpression(token, left) {
-        const exp = new IndexExpression(this.T, left);
-        this.next();
-        exp.index = this.parseExpression();
+        const exp = new IndexExpression(this.T, left)
+        this.next()
+        exp.index = this.parseExpression()
         if (!this.expect(T.RBRACKET)) {
-            return token;
+            return token
         }
-        return exp;
+        return exp
     }
 
 
     parseHashLiteral() {
-        const hash = new HashLiteral(this.T);
-        hash.pairs = new Map();
+        const hash = new HashLiteral(this.T)
+        hash.pairs = new Map()
         while(this.nT.type !== T.RBRACE){
-            this.next();
-            const key = this.parseExpression();
+            this.next()
+            const key = this.parseExpression()
             if (!this.expect(T.COLON)) {
-                return null;
+                return null
             }
-            this.next();
-            const value = this.parseExpression();
-            hash.pairs.set(key, value);
+            this.next()
+            const value = this.parseExpression()
+            hash.pairs.set(key, value)
             if (this.nT.type !== T.RBRACE && !this.expect(T.COMMA)) {
-                return null;
+                return null
             }
         }
         if (!this.expect(T.RBRACE)) {
-            return null;
+            return null
         }
-        return hash;
+        return hash
     }
 }
