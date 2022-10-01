@@ -1,7 +1,7 @@
 import { Array, Builtin, Error, Integer } from './object.js';
 
 
-export const builtins = {
+export const Functions = {
     len: new Builtin((...args)=>{
         if (args.length != 1) {
             return new Error(`wrong number of arguments. got=${args.length}, want=1`);

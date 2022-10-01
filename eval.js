@@ -1,4 +1,4 @@
-import { builtins } from './builtins.js';
+import { Functions } from './functions.js';
 import { Integer, Boolean, Null, ReturnValue, Error, INTEGER_OBJ, RETURN_VALUE_OBJ, ERROR_OBJ, Function, String, STRING_OBJ, Array, ARRAY_OBJ, Hash, HASH_OBJ } from './object.js';
 
 
@@ -261,7 +261,7 @@ const evalIfExpression = (ie, env)=>{
 };
 const evalIdentifier = (node, env)=>{
     const val = env.get(node.value);
-    const builtin = builtins[node.value];
+    const builtin = Functions[node.value];
     if (!val && !builtin) {
         return new Error(`identifier not found: ` + node.value);
     }
