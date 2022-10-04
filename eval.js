@@ -1,8 +1,8 @@
-import { Functions } from './functions.js';
-import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Hash } from './object.js';
+import { Functions } from './functions.js'
+import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Hash } from './object.js'
 
 
-export const Eval = (node, env = new Environment(new Map))=>{
+function Eval(node, env = new Environment(new Map)){
     switch(node.constructor.name){
         case 'Program':
             return evalProgram(node, env);
@@ -100,253 +100,291 @@ export const Eval = (node, env = new Environment(new Map))=>{
             }
     }
     return null;
-};
-const evalProgram = (program, env)=>{
-    let result;
+}
+
+
+function evalProgram(program, env){
+    let result
     for (const statement of program.statements){
-        result = Eval(statement, env);
+        result = Eval(statement, env)
         switch(result.constructor.name){
             case 'ReturnValue':
-                return result.value;
+                return result.value
             case 'Error':
-                return result;
+                return result
         }
     }
-    return result;
-};
-const evalBlockStatement = (block, env)=>{
-    let result;
-    for (const statement of block.statements){
-        result = Eval(statement, env);
-        if (result != null) {
-            const rt = result.type();
-            if (rt == 'return' || rt == 'error') {
-                return result;
-            }
+
+    return result
+}
+
+
+function evalBlockStatement(block, env){
+    let result
+
+    for (const v of block.statements){
+        result = Eval(v, env)
+        if (result?.type() == 'return' || result?.type() == 'error') {
+            return result
         }
     }
-    return result;
-};
-const evalExpressions = (exps, env)=>{
-    let result = [];
-    for (const e of exps){
-        const evaluated = Eval(e, env);
+
+    return result
+}
+
+
+function evalExpressions(exps, env){
+    let result = []
+
+    for (const v of exps){
+        const evaluated = Eval(v, env)
         if (isError(evaluated)) {
-            return evaluated;
+            return evaluated
         }
-        result.push(evaluated);
+        result.push(evaluated)
     }
-    return result;
-};
-const applyFunction = (fn, args)=>{
+
+    return result
+}
+
+
+function applyFunction(fn, args){
     switch(fn.constructor.name){
         case 'Function':
-            {
-                const extendedEnv = extendFunctionEnv(fn, args);
-                const evaluated = Eval(fn.body, extendedEnv);
-                return unwrapReturnValue(evaluated);
-            }
+            return evalFunction(fn, args)
         case 'Builtin':
-            {
-                return fn.fn(...args);
-            }
+            return fn.fn(...args)
         default:
-            return new Error(`not a function: ${fn.type()}`);
+            return new Error(`not a function: ${fn.type()}`)
     }
-};
-const extendFunctionEnv = (fn, args)=>{
+}
+
+
+function evalFunction(fn, args){
     const env = new Environment(new Map(), fn.env)
-    fn.parameters.forEach((param, paramIdx)=>{
-        env.set(param.value, args[paramIdx]);
-    });
-    return env;
-};
-const unwrapReturnValue = (obj)=>{
-    if (obj.constructor.name == 'ReturnValue') {
-        return obj.value;
+
+    for(const [i,v] of fn.parameters.entries()){
+        env.set(v.value, args[i])
     }
-    return obj;
-};
-const evalPrefixExpression = (operator, right)=>{
+
+    const result = Eval(fn.body, env)
+
+    if (result.constructor.name == 'ReturnValue') {
+        return result.value
+    }
+
+    return result
+}
+
+
+function evalPrefixExpression(operator, right){
     switch(operator){
         case '!':
-            return evalBangOperatorExpression(right);
+            return evalBangOperatorExpression(right)
         case '-':
-            return evalMinusPrefixOperatorExpression(right);
+            return evalMinusOperatorExpression(right)
         default:
-            return new Error(`unknown operator: ${operator}${right.type}`);
+            return new Error(`unknown operator: ${operator}${right.type()}`)
     }
-};
-const evalBangOperatorExpression = (right)=>{
+}
+
+
+function evalBangOperatorExpression(right){
     switch(right.value){
-        case true:
-            return new Boolean(false);
         case false:
-            return new Boolean(true);
+            return new Boolean(true)
         case null:
-            return new Boolean(true);
+            return new Boolean(true)
         default:
-            return new Boolean(false);
+            return new Boolean(false)
     }
-};
-const evalMinusPrefixOperatorExpression = (right)=>{
+}
+
+
+function evalMinusOperatorExpression(right){
     if (right.type() != 'integer') {
-        return new Error(`unknown operator: -${right.type()}`);
+        return new Error(`unknown operator: -${right.type()}`)
     }
-    const value = right.value;
-    return new Integer(-value);
-};
-const evalInfixExpression = (operator, left, right)=>{
+
+    return new Integer(-right.value)
+}
+
+
+function evalInfixExpression(operator, left, right){
     if (left.type() == 'integer' && right.type() == 'integer') {
-        return evalIntegerInfixExpression(operator, left, right);
+        return evalIntegerInfixExpression(operator, left, right)
     }
-    if (operator == '==') {
-        return new Boolean(left.value == right.value);
+    else if (operator == '==') {
+        return new Boolean(left.value == right.value)
     }
-    if (operator == '!=') {
-        return new Boolean(left.value != right.value);
+    else if (operator == '!=') {
+        return new Boolean(left.value != right.value)
     }
-    if (left.type() != right.type()) {
-        return new Error(`type mismatch: ${left.type()} ${operator} ${right.type()}`);
+    else if (left.type() == 'string' && right.type() == 'string') {
+        return evalStringInfixExpression(operator, left, right)
     }
-    if (left.type() == 'string' && right.type() == 'string') {
-        return evalStringInfixExpression(operator, left, right);
+    else if (left.type() != right.type()) {
+        return new Error(`type mismatch: ${left.type()} ${operator} ${right.type()}`)
     }
-    return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`);
-};
-const evalStringInfixExpression = (operator, left, right)=>{
+
+    return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`)
+}
+
+
+function evalStringInfixExpression(operator, left, right){
     if (operator != '+') {
-        return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`);
+        return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`)
     }
-    const leftVal = left.value;
-    const rightVal = right.value;
-    return new String(leftVal + rightVal);
-};
-const evalIntegerInfixExpression = (operator, left, right)=>{
-    const leftVal = left.value;
-    const rightVal = right.value;
+    return new String(left.value + right.value)
+}
+
+
+function evalIntegerInfixExpression(operator, left, right){
     switch(operator){
         case '+':
-            return new Integer(leftVal + rightVal);
+            return new Integer(left.value + right.value)
         case '-':
-            return new Integer(leftVal - rightVal);
+            return new Integer(left.value - right.value)
         case '*':
-            return new Integer(leftVal * rightVal);
+            return new Integer(left.value * right.value)
         case '/':
-            return new Integer(leftVal / rightVal);
+            return new Integer(left.value / right.value)
         case '<':
-            return new Boolean(leftVal < rightVal);
+            return new Boolean(left.value < right.value)
         case '>':
-            return new Boolean(leftVal > rightVal);
+            return new Boolean(left.value > right.value)
         case '==':
-            return new Boolean(leftVal == rightVal);
+            return new Boolean(left.value == right.value)
         case '!=':
-            return new Boolean(leftVal != rightVal);
+            return new Boolean(left.value != right.value)
         default:
-            return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`);
+            return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`)
     }
-};
-const evalIfExpression = (ie, env)=>{
-    const condition = Eval(ie.condition, env);
+}
+
+
+function evalIfExpression(ie, env){
+    const condition = Eval(ie.condition, env)
+
     if (isError(condition)) {
-        return condition;
+        return condition
     }
     if (isTruthy(condition)) {
-        return Eval(ie.consequence, env);
-    } else if (ie.alternative != null) {
-        return Eval(ie.alternative, env);
-    } else {
-        return new Null();
+        return Eval(ie.consequence, env)
     }
-};
-const evalIdentifier = (node, env)=>{
-    const val = env.get(node.value);
-    const builtin = Functions[node.value];
+    else if (ie.alternative != null) {
+        return Eval(ie.alternative, env)
+    }
+    else {
+        return new Null()
+    }
+}
+
+
+function evalIdentifier(node, env){
+    const val = env.get(node.value)
+    const builtin = Functions[node.value]
+
     if (!val && !builtin) {
-        return new Error(`identifier not found: ` + node.value);
+        return new Error(`identifier not found: ` + node.value)
     }
-    if (val) return val;
-    if (builtin) return builtin;
-};
-const evalIndexExpression = (left, index)=>{
+    if (val){
+        return val
+    }
+    else if(builtin){
+        return builtin
+    }
+}
+
+
+function evalIndexExpression(left, index){
     if (left.type() == 'array' && index.type() == 'integer') {
-        return evalArrayIndexExpression(left, index);
-    } else if (left.type() == 'hash') {
-        return evalHashIndexExpression(left, index);
-    } else {
-        return new Error(`index operator not supported: ${left.type()}`);
+        return evalArrayIndexExpression(left, index)
     }
-};
-const evalArrayIndexExpression = (array, index)=>{
-    const idx = index.value;
-    const max = array.elements.length - 1;
+    else if (left.type() == 'hash') {
+        return evalHashIndexExpression(left, index)
+    }
+    else {
+        return new Error(`index operator not supported: ${left.type()}`)
+    }
+}
+
+
+function evalArrayIndexExpression(array, index){
+    const idx = index.value
+    const max = array.elements.length - 1
     if (idx < 0 || idx > max) {
-        return null;
+        return null
     }
-    return array.elements[idx];
-};
-const evalHashLiteral = (node, env)=>{
-    const pairs = new Map();
-    for (const [keyNode, valueNode] of node.pairs){
-        const key = Eval(keyNode, env);
+    return array.elements[idx]
+}
+
+
+function evalHashLiteral(node, env){
+    const pairs = new Map()
+
+    for (const [k, v] of node.pairs){
+        const key = Eval(k, env)
         if (isError(key)) {
-            return key;
+            return key
         }
-        const value = Eval(valueNode, env);
+        const value = Eval(v, env)
         if (isError(value)) {
-            return value;
+            return value
         }
-        const hashed = key.hashKey();
-        pairs.set(hashed, {
-            key: key,
-            value: value
-        });
+        const hashed = key.hashKey()
+        pairs.set(hashed, {key, value})
     }
-    return new Hash(pairs);
-};
-const evalHashIndexExpression = (hash, index)=>{
-    const pair = hash.paris.get(index.hashKey());
-    if (!pair) {
-        return null;
-    }
-    return pair.value;
-};
-const isTruthy = (obj)=>{
+
+    return new Hash(pairs)
+}
+
+
+function evalHashIndexExpression(hash, index){
+    const pair = hash.paris.get(index.hashKey())
+    return pair?.value
+}
+
+
+function isTruthy(obj){
     switch(obj.value){
         case null:
-            return false;
-        case true:
-            return true;
+            return false
         case false:
-            return false;
+            return false
         default:
-            return true;
+            return true
     }
-};
-const isError = (obj)=>{
+}
+
+
+function isError(obj){
     if (obj != null) {
         return obj.type() == 'error'
     }
-    return false;
-};
+    return false
+}
 
 
 class Environment{
-    store;
-    outer;
     constructor(store, outer = null){
-        this.store = store;
-        this.outer = outer;
+        this.store = store
+        this.outer = outer
     }
-    get(name) {
-        const obj = this.store.get(name);
+
+    get(name){
+        const obj = this.store.get(name)
         if (!obj && this.outer != null) {
-            return this.outer.get(name);
+            return this.outer.get(name)
         }
-        return obj;
+        return obj
     }
-    set(name, val) {
-        this.store.set(name, val);
-        return val;
+
+    set(name, val){
+        this.store.set(name, val)
+        return val
     }
 }
+
+
+export {Eval}

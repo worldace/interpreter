@@ -1,14 +1,12 @@
 
-
-export class Program {
+class Program {
     statements
     constructor(statements = []){
         this.statements = statements
     }
 }
 
-
-export class LetStatement {
+class LetStatement {
     token
     name
     value
@@ -16,14 +14,16 @@ export class LetStatement {
         this.token = token
     }
 }
-export class ReturnStatement {
+
+class ReturnStatement {
     token
     returnValue
     constructor(token){
         this.token = token
     }
 }
-export class ExpressionStatement {
+
+class ExpressionStatement {
     token
     expression
     value
@@ -31,7 +31,8 @@ export class ExpressionStatement {
         this.token = token
     }
 }
-export class PrefixExpression {
+
+class PrefixExpression {
     token
     operator
     right
@@ -40,7 +41,8 @@ export class PrefixExpression {
         this.operator = operator
     }
 }
-export class InfixExpression {
+
+class InfixExpression {
     token
     operator
     left
@@ -51,7 +53,8 @@ export class InfixExpression {
         this.left = left
     }
 }
-export class Identifier {
+
+class Identifier {
     token
     value
     constructor(token, value){
@@ -59,7 +62,8 @@ export class Identifier {
         this.value = value
     }
 }
-export class StringLiteral {
+
+class StringLiteral {
     token
     value
     constructor(token, value){
@@ -67,14 +71,16 @@ export class StringLiteral {
         this.value = value
     }
 }
-export class IntegerLiteral {
+
+class IntegerLiteral {
     token
     value
     constructor(token){
         this.token = token
     }
 }
-export class Boolean {
+
+class Boolean {
     token
     value
     constructor(token, value){
@@ -82,7 +88,8 @@ export class Boolean {
         this.value = value
     }
 }
-export class IfExpression {
+
+class IfExpression {
     token
     condition
     consequence
@@ -91,14 +98,16 @@ export class IfExpression {
         this.token = token
     }
 }
-export class BlockStatement {
+
+class BlockStatement {
     token
     statements
     constructor(token){
         this.token = token
     }
 }
-export class FunctionLiteral {
+
+class FunctionLiteral {
     token
     parameters
     body
@@ -106,7 +115,8 @@ export class FunctionLiteral {
         this.token = token
     }
 }
-export class CallExpression {
+
+class CallExpression {
     token
     fc
     arguments
@@ -115,14 +125,16 @@ export class CallExpression {
         this.fc = fc
     }
 }
-export class ArrayLiteral {
+
+class ArrayLiteral {
     token
     elements
     constructor(token){
         this.token = token
     }
 }
-export class IndexExpression {
+
+class IndexExpression {
     token
     left
     index
@@ -131,10 +143,14 @@ export class IndexExpression {
         this.left = left
     }
 }
-export class HashLiteral {
+
+class HashLiteral {
     token
     pairs
     constructor(token){
         this.token = token
     }
 }
+
+
+export {Program, LetStatement, ReturnStatement, ExpressionStatement, PrefixExpression, InfixExpression, Identifier, StringLiteral, IntegerLiteral, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, ArrayLiteral, IndexExpression, HashLiteral}

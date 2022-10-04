@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
   <title>interpreter</title>
 </head>
 <body>
@@ -68,14 +67,9 @@ document.onkeydown = function(event){
 
 <!--
 [依存関係]
-lexer.js       : token.js
-parser.js      : (lexer.js) token.js ast.js
-evaluator.js   : (parser.js) object.js functions.js
-
-token.js       :
-ast.js         :
-object.js      :
-functions.js   : object.js
+lexer.js     : token.js
+parser.js    : lexer.js token.js ast.js
+evaluator.js : parser.js object.js functions.js
 -->
 
 </body>
