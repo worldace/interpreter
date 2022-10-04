@@ -45,8 +45,10 @@ function Eval(node, env = new Environment(new Map)){
 
 function evalProgram(program, env){
     let result
+
     for (const statement of program.statements){
         result = Eval(statement, env)
+
         switch(result.constructor.name){
             case 'ReturnValue':
                 return result.value
@@ -78,7 +80,7 @@ function evalLetStatement(name, value, env){
         return value
     }
 
-    return env.set(name, value, env)
+    return env.set(name, value)
 }
 
 
@@ -298,7 +300,7 @@ function applyFunction(fn, args){
         return fn
     }
     if (args.length == 1 && isError(args[0])) {
-        return args[0];
+        return args[0]
     }
 
     switch(fn.constructor.name){

@@ -12,55 +12,6 @@ class Lexer{
     }
 
 
-    read(){
-        this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
-        this.pos = this.index
-        this.index += 1
-    }
-
-
-    readIdent(){
-        const start = this.pos
-        while(isLetter(this.c)){
-            this.read()
-        }
-        return this.input.slice(start, this.pos)
-    }
-
-
-    readString(){
-        const start = this.pos + 1
-        while(true){
-            this.read()
-            if (this.c == '"' || this.c == 'EOF') {
-                break
-            }
-        }
-        return this.input.slice(start, this.pos)
-    }
-
-
-    readNumber(){
-        const start = this.pos
-        while(isDigit(this.c)){
-            this.read()
-        }
-        return this.input.slice(start, this.pos)
-    }
-
-
-    readWhitespace(){
-        while(isWhitespace(this.c)){
-            this.read()
-        }
-    }
-
-
-    prefetch(){
-        return this.input[this.pos+1]
-    }
-
-
     generate(){
         let tok
 
@@ -155,6 +106,55 @@ class Lexer{
 
         this.read()
         return tok
+    }
+
+
+    read(){
+        this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
+        this.pos = this.index
+        this.index += 1
+    }
+
+
+    readIdent(){
+        const start = this.pos
+        while(isLetter(this.c)){
+            this.read()
+        }
+        return this.input.slice(start, this.pos)
+    }
+
+
+    readString(){
+        const start = this.pos + 1
+        while(true){
+            this.read()
+            if (this.c == '"' || this.c == 'EOF') {
+                break
+            }
+        }
+        return this.input.slice(start, this.pos)
+    }
+
+
+    readNumber(){
+        const start = this.pos
+        while(isDigit(this.c)){
+            this.read()
+        }
+        return this.input.slice(start, this.pos)
+    }
+
+
+    readWhitespace(){
+        while(isWhitespace(this.c)){
+            this.read()
+        }
+    }
+
+
+    prefetch(){
+        return this.input[this.pos+1]
     }
 
 
