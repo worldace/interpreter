@@ -1,4 +1,4 @@
-import { Builtin, Error, Integer, Null } from './object.js';
+import { Builtin, Array, Integer, Null, Error } from './object.js';
 
 
 function len(...args){
@@ -48,6 +48,40 @@ function last(...args){
 }
 
 
+function rest(...args){
+    if (args.length != 1) {
+        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+    }
+    if (args[0].constructor.name != 'Array') {
+        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type()}`)
+    }
+    const length = args[0].elements.length
+
+    if (length > 0) {
+        const newElements = args[0].elements.slice(1, length)
+        return new Array(newElements)
+    }
+
+    return new Null()
+}
+
+
+function push(...args){
+    if (args.length != 2) {
+        return new Error(`wrong number of arguments. got=${args.length}, want=2`)
+    }
+    if (args[0].constructor.name != 'Array') {
+        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type()}`)
+    }
+
+    const length = args[0].elements.length
+    args[0].elements[length] = args[1]
+
+    return new Array(args[0].elements)
+}
+
+
+
 function print(...args){
     if (args.length != 1) {
         return new Error(`wrong number of arguments. got=${args.length}, want=1`)
@@ -64,5 +98,7 @@ export const Functions = {
     len   : new Builtin(len),
     first : new Builtin(first),
     last  : new Builtin(last),
+    rest  : new Builtin(rest),
+    push  : new Builtin(push),
     print : new Builtin(print),
 }

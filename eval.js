@@ -37,7 +37,7 @@ function Eval(node, env = new Environment(new Map)){
         case 'ReturnStatement':
             return evalReturnStatement(Eval(node.returnValue, env))
         case 'CallExpression':
-            return applyFunction(Eval(node.fc, env), evalListExpressions(node.arguments, env))
+            return evalFunction(Eval(node.fc, env), evalListExpressions(node.arguments, env))
     }
 }
 
@@ -295,7 +295,7 @@ function evalHashIndexExpression(hash, index){
 }
 
 
-function applyFunction(fn, args){
+function evalFunction(fn, args){
     if (isError(fn)) {
         return fn
     }
@@ -303,31 +303,27 @@ function applyFunction(fn, args){
         return args[0]
     }
 
-    switch(fn.constructor.name){
-        case 'Function':
-            return evalFunction(fn, args)
-        case 'Builtin':
-            return fn.fn(...args)
-        default:
-            return new Error(`not a function: ${fn.type()}`)
+    if(fn.constructor.name === 'Function'){
+        const env = new Environment(new Map(), fn.env)
+
+        for(const [i,v] of fn.parameters.entries()){
+            env.set(v.value, args[i])
+        }
+
+        const result = Eval(fn.body, env)
+
+        if (result.constructor.name == 'ReturnValue') {
+            return result.value
+        }
+
+        return result
     }
-}
-
-
-function evalFunction(fn, args){
-    const env = new Environment(new Map(), fn.env)
-
-    for(const [i,v] of fn.parameters.entries()){
-        env.set(v.value, args[i])
+    else if(fn.constructor.name === 'Builtin'){
+        return fn.fn(...args)
     }
-
-    const result = Eval(fn.body, env)
-
-    if (result.constructor.name == 'ReturnValue') {
-        return result.value
+    else{
+        return new Error(`not a function: ${fn.type()}`)
     }
-
-    return result
 }
 
 
