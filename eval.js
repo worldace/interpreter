@@ -27,17 +27,17 @@ function Eval(node, env = new Environment(new Map)){
         case 'Boolean':
             return new Boolean(node.value)
         case 'ArrayLiteral':
-            return evalArrayLiteral(evalParamExpressions(node.elements, env))
+            return evalArrayLiteral(evalListExpressions(node.elements, env))
         case 'IndexExpression':
             return evalIndexExpression(Eval(node.left, env), Eval(node.index, env))
         case 'HashLiteral':
             return evalHashLiteral(node, env)
         case 'FunctionLiteral':
             return new Function(node.parameters, node.body, env)
-        case 'CallExpression':
-            return applyFunction(Eval(node.fc, env), evalParamExpressions(node.arguments, env))
         case 'ReturnStatement':
             return evalReturnStatement(Eval(node.returnValue, env))
+        case 'CallExpression':
+            return applyFunction(Eval(node.fc, env), evalListExpressions(node.arguments, env))
     }
 }
 
@@ -224,7 +224,7 @@ function evalArrayLiteral(elements){
 }
 
 
-function evalParamExpressions(exps, env){
+function evalListExpressions(exps, env){
     let result = []
 
     for (const v of exps){

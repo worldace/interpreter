@@ -283,19 +283,19 @@ export class Parser {
 
     parseCallExpression(token, fc) {
         const exp = new CallExpression(token, fc)
-        exp.arguments = this.parseExpressionList(T.RPAREN)
+        exp.arguments = this.parseListExpression(T.RPAREN)
         return exp
     }
 
 
     parseArrayLiteral() {
         const array = new ArrayLiteral(this.T)
-        array.elements = this.parseExpressionList(T.RBRACKET)
+        array.elements = this.parseListExpression(T.RBRACKET)
         return array
     }
 
 
-    parseExpressionList(end) {
+    parseListExpression(end) {
         let list = []
         if (this.nT.type === end) {
             this.next()
