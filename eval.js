@@ -147,14 +147,14 @@ function evalInfixExpression(operator, left, right){
         return right
     }
 
-    if (left.type() == 'integer' && right.type() == 'integer') {
-        return evalIntegerInfixExpression(operator, left, right)
-    }
-    else if (operator == '==') {
+    if (operator == '==') {
         return new Boolean(left.value == right.value)
     }
     else if (operator == '!=') {
         return new Boolean(left.value != right.value)
+    }
+    else if (left.type() == 'integer' && right.type() == 'integer') {
+        return evalIntegerInfixExpression(operator, left, right)
     }
     else if (left.type() == 'string' && right.type() == 'string') {
         return evalStringInfixExpression(operator, left, right)

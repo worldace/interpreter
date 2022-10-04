@@ -11,10 +11,10 @@ let a = 50;
 let b = fn(n){ return n + 1; }
 let c = b(a);
 let d = [5,6,7];
-if(c > 100){ "100 over"; }
+if(c > 100){ print("100 over"); }
 else{
-    if(c > 50){ "50 over"; }
-    else{ "50 less"; }
+    if(c > 50){ print("50 over"); }
+    else{ print("50 less"); }
 }
 </textarea><br>
 <button id="$button">実行 (Ctrl+Enter)</button><br>
@@ -43,7 +43,7 @@ function interpreter(code){
 
 
 $button.onclick = function(event){
-    $output.textContent = interpreter($textarea.value)?.inspect()
+    interpreter($textarea.value)
 }
 
 
