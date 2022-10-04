@@ -5,102 +5,42 @@ import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Ha
 function Eval(node, env = new Environment(new Map)){
     switch(node.constructor.name){
         case 'Program':
-            return evalProgram(node, env);
-        case 'ExpressionStatement':
-            return Eval(node.expression, env);
-        case 'StringLiteral':
-            return new String(node.value);
-        case 'IntegerLiteral':
-            return new Integer(node.value);
-        case 'Boolean':
-            return new Boolean(node.value);
-        case 'PrefixExpression':
-            {
-                const right = Eval(node.right, env);
-                if (isError(right)) {
-                    return right;
-                }
-                return evalPrefixExpression(node.operator, right);
-            }
-        case 'InfixExpression':
-            {
-                const left = Eval(node.left, env);
-                if (isError(left)) {
-                    return left;
-                }
-                const right1 = Eval(node.right, env);
-                if (isError(right1)) {
-                    return right1;
-                }
-                return evalInfixExpression(node.operator, left, right1);
-            }
+            return evalProgram(node, env)
         case 'BlockStatement':
-            return evalBlockStatement(node, env);
-        case 'IfExpression':
-            return evalIfExpression(node, env);
-        case 'ReturnStatement':
-            {
-                const val = Eval(node.returnValue, env);
-                if (isError(val)) {
-                    return val;
-                }
-                return new ReturnValue(val);
-            }
-        case 'Identifier':
-            return evalIdentifier(node, env);
+            return evalBlockStatement(node, env)
+        case 'ExpressionStatement':
+            return Eval(node.expression, env)
         case 'LetStatement':
-            {
-                const val1 = Eval(node.value, env);
-                if (isError(val1)) {
-                    return val1;
-                }
-                return env.set(node.name.value, val1);
-            }
-        case 'FunctionLiteral':
-            {
-                const params = node.parameters;
-                const body = node.body;
-                return new Function(params, body, env);
-            }
-        case 'CallExpression':
-            {
-                const objectFunction = Eval(node.fc, env);
-                if (isError(objectFunction)) {
-                    return objectFunction;
-                }
-                const args = evalExpressions(node.arguments, env);
-                if (args.length == 1 && isError(args[0])) {
-                    return args[0];
-                }
-                return applyFunction(objectFunction, args);
-            }
+            return evalLetStatement(node.name.value, Eval(node.value, env), env)
+        case 'IfExpression':
+            return evalIfExpression(node, env)
+        case 'PrefixExpression':
+            return evalPrefixExpression(node.operator, Eval(node.right, env))
+        case 'InfixExpression':
+            return evalInfixExpression(node.operator, Eval(node.left, env), Eval(node.right, env))
+        case 'Identifier':
+            return evalIdentifier(node, env)
+        case 'StringLiteral':
+            return new String(node.value)
+        case 'IntegerLiteral':
+            return new Integer(node.value)
+        case 'Boolean':
+            return new Boolean(node.value)
         case 'ArrayLiteral':
-            {
-                const elements = evalExpressions(node.elements, env);
-                if (elements.length == 1 && isError(elements[0])) {
-                    return elements[0];
-                }
-                return new Array(elements);
-            }
+            return evalArrayLiteral(evalParamExpressions(node.elements, env))
         case 'IndexExpression':
-            {
-                const left1 = Eval(node.left, env);
-                if (isError(left1)) {
-                    return left1;
-                }
-                const index = Eval(node.index, env);
-                if (isError(index)) {
-                    return index;
-                }
-                return evalIndexExpression(left1, index);
-            }
+            return evalIndexExpression(Eval(node.left, env), Eval(node.index, env))
         case 'HashLiteral':
-            {
-                return evalHashLiteral(node, env);
-            }
+            return evalHashLiteral(node, env)
+        case 'FunctionLiteral':
+            return new Function(node.parameters, node.body, env)
+        case 'CallExpression':
+            return applyFunction(Eval(node.fc, env), evalParamExpressions(node.arguments, env))
+        case 'ReturnStatement':
+            return evalReturnStatement(Eval(node.returnValue, env))
     }
-    return null;
 }
+
 
 
 function evalProgram(program, env){
@@ -133,51 +73,38 @@ function evalBlockStatement(block, env){
 }
 
 
-function evalExpressions(exps, env){
-    let result = []
-
-    for (const v of exps){
-        const evaluated = Eval(v, env)
-        if (isError(evaluated)) {
-            return evaluated
-        }
-        result.push(evaluated)
+function evalLetStatement(name, value, env){
+    if (isError(value)) {
+        return value
     }
 
-    return result
+    return env.set(name, value, env)
 }
 
 
-function applyFunction(fn, args){
-    switch(fn.constructor.name){
-        case 'Function':
-            return evalFunction(fn, args)
-        case 'Builtin':
-            return fn.fn(...args)
-        default:
-            return new Error(`not a function: ${fn.type()}`)
+function evalIfExpression(ie, env){
+    const condition = Eval(ie.condition, env)
+
+    if (isError(condition)) {
+        return condition
     }
-}
-
-
-function evalFunction(fn, args){
-    const env = new Environment(new Map(), fn.env)
-
-    for(const [i,v] of fn.parameters.entries()){
-        env.set(v.value, args[i])
+    if (isTruthy(condition)) {
+        return Eval(ie.consequence, env)
     }
-
-    const result = Eval(fn.body, env)
-
-    if (result.constructor.name == 'ReturnValue') {
-        return result.value
+    else if (ie.alternative != null) {
+        return Eval(ie.alternative, env)
     }
-
-    return result
+    else {
+        return new Null()
+    }
 }
 
 
 function evalPrefixExpression(operator, right){
+    if (isError(right)) {
+        return right
+    }
+
     switch(operator){
         case '!':
             return evalBangOperatorExpression(right)
@@ -211,6 +138,13 @@ function evalMinusOperatorExpression(right){
 
 
 function evalInfixExpression(operator, left, right){
+    if (isError(left)) {
+        return left
+    }
+    if (isError(right)) {
+        return right
+    }
+
     if (left.type() == 'integer' && right.type() == 'integer') {
         return evalIntegerInfixExpression(operator, left, right)
     }
@@ -263,24 +197,6 @@ function evalIntegerInfixExpression(operator, left, right){
 }
 
 
-function evalIfExpression(ie, env){
-    const condition = Eval(ie.condition, env)
-
-    if (isError(condition)) {
-        return condition
-    }
-    if (isTruthy(condition)) {
-        return Eval(ie.consequence, env)
-    }
-    else if (ie.alternative != null) {
-        return Eval(ie.alternative, env)
-    }
-    else {
-        return new Null()
-    }
-}
-
-
 function evalIdentifier(node, env){
     const val = env.get(node.value)
     const builtin = Functions[node.value]
@@ -297,7 +213,38 @@ function evalIdentifier(node, env){
 }
 
 
+function evalArrayLiteral(elements){
+    if (elements.length == 1 && isError(elements[0])) {
+        return elements[0]
+    }
+
+    return new Array(elements)
+}
+
+
+function evalParamExpressions(exps, env){
+    let result = []
+
+    for (const v of exps){
+        const evaluated = Eval(v, env)
+        if (isError(evaluated)) {
+            return evaluated
+        }
+        result.push(evaluated)
+    }
+
+    return result
+}
+
+
 function evalIndexExpression(left, index){
+    if (isError(left)) {
+        return left
+    }
+    if (isError(index)) {
+        return index
+    }
+
     if (left.type() == 'array' && index.type() == 'integer') {
         return evalArrayIndexExpression(left, index)
     }
@@ -344,6 +291,52 @@ function evalHashIndexExpression(hash, index){
     const pair = hash.paris.get(index.hashKey())
     return pair?.value
 }
+
+
+function applyFunction(fn, args){
+    if (isError(fn)) {
+        return fn
+    }
+    if (args.length == 1 && isError(args[0])) {
+        return args[0];
+    }
+
+    switch(fn.constructor.name){
+        case 'Function':
+            return evalFunction(fn, args)
+        case 'Builtin':
+            return fn.fn(...args)
+        default:
+            return new Error(`not a function: ${fn.type()}`)
+    }
+}
+
+
+function evalFunction(fn, args){
+    const env = new Environment(new Map(), fn.env)
+
+    for(const [i,v] of fn.parameters.entries()){
+        env.set(v.value, args[i])
+    }
+
+    const result = Eval(fn.body, env)
+
+    if (result.constructor.name == 'ReturnValue') {
+        return result.value
+    }
+
+    return result
+}
+
+
+function evalReturnStatement(val){
+    if (isError(val)) {
+        return val
+    }
+
+    return new ReturnValue(val)
+}
+
 
 
 function isTruthy(obj){
