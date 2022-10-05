@@ -112,7 +112,7 @@ export class Array {
             elements.push(e.inspect())
         }
         out.push('[')
-        out.push(elements.join(''))
+        out.push(elements.join(','))
         out.push(']')
         return out.join('')
     }
