@@ -34,7 +34,7 @@ T.ELSE      = 'ELSE'
 T.RETURN    = 'RETURN'
 
 
-const keyword = {
+const reserved = {
     fn    : T.FUNCTION,
     let   : T.LET,
     true  : T.TRUE,
@@ -53,4 +53,4 @@ class Token{
 }
 
 
-export {T, Token, keyword}
+export {T, Token, reserved}

@@ -70,7 +70,26 @@ document.onkeydown = function(event){
 lexer.js     : token.js
 parser.js    : lexer.js token.js ast.js
 evaluator.js : parser.js object.js functions.js
+
+
+[map関数]
+let map = fn(array, callback) {
+    let iter = fn(array, accum) {
+        if (len(array) == 0) {
+            return accum;
+        }
+        else {
+            return iter(rest(array), push(accum, callback(first(array))));
+        }
+    }
+
+    iter(array, []);
+}
+print( map([1,2,3,4], fn(x){x*2}) );
+
 -->
+
+
 
 </body>
 </html>

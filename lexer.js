@@ -1,4 +1,4 @@
-import {T, Token, keyword} from './token.js'
+import {T, Token, reserved} from './token.js'
 
 
 class Lexer{
@@ -13,7 +13,7 @@ class Lexer{
 
 
     generate(){
-        let tok
+        let token
 
         this.readWhitespace()
 
@@ -22,90 +22,90 @@ class Lexer{
                 if(this.prefetch() === '=') {
                     const c = this.c
                     this.read()
-                    tok = new Token(T.EQ, c + this.c)
+                    token = new Token(T.EQ, c + this.c)
                 }
                 else{
-                    tok = new Token(T.ASSIGN, this.c)
+                    token = new Token(T.ASSIGN, this.c)
                 }
                 break
             case '"':
-                tok = new Token(T.STRING, this.readString())
+                token = new Token(T.STRING, this.readString())
                 break
             case ':':
-                tok = new Token(T.COLON, this.c)
+                token = new Token(T.COLON, this.c)
                 break
             case ';':
-                tok = new Token(T.SEMICOLON, this.c)
+                token = new Token(T.SEMICOLON, this.c)
                 break
             case '(':
-                tok = new Token(T.LPAREN, this.c)
+                token = new Token(T.LPAREN, this.c)
                 break
             case ')':
-                tok = new Token(T.RPAREN, this.c)
+                token = new Token(T.RPAREN, this.c)
                 break
             case ',':
-                tok = new Token(T.COMMA, this.c)
+                token = new Token(T.COMMA, this.c)
                 break
             case '+':
-                tok = new Token(T.PLUS, this.c)
+                token = new Token(T.PLUS, this.c)
                 break
             case '-':
-                tok = new Token(T.MINUS, this.c)
+                token = new Token(T.MINUS, this.c)
                 break
             case '!':
                 if (this.prefetch() === '=') {
                     const c = this.c
                     this.read()
-                    tok = new Token(T.NOTEQ, c + this.c)
+                    token = new Token(T.NOTEQ, c + this.c)
                 }
                 else {
-                    tok = new Token(T.BANG, this.c)
+                    token = new Token(T.BANG, this.c)
                 }
                 break
             case '/':
-                tok = new Token(T.SLASH, this.c)
+                token = new Token(T.SLASH, this.c)
                 break
             case '*':
-                tok = new Token(T.ASTERISK, this.c)
+                token = new Token(T.ASTERISK, this.c)
                 break
             case '<':
-                tok = new Token(T.LT, this.c)
+                token = new Token(T.LT, this.c)
                 break
             case '>':
-                tok = new Token(T.GT, this.c)
+                token = new Token(T.GT, this.c)
                 break
             case '{':
-                tok = new Token(T.LBRACE, this.c)
+                token = new Token(T.LBRACE, this.c)
                 break
             case '}':
-                tok = new Token(T.RBRACE, this.c)
+                token = new Token(T.RBRACE, this.c)
                 break
             case '[':
-                tok = new Token(T.LBRACKET, this.c)
+                token = new Token(T.LBRACKET, this.c)
                 break
             case ']':
-                tok = new Token(T.RBRACKET, this.c)
+                token = new Token(T.RBRACKET, this.c)
                 break
             case 'EOF':
-                tok = new Token(T.EOF, '')
+                token = new Token(T.EOF, '')
                 break
             default:
                 if(isLetter(this.c)){
                     const ident = this.readIdent()
-                    tok = new Token(keyword[ident] || T.IDENT, ident)
-                    return tok
+                    token = new Token(reserved[ident] || T.IDENT, ident)
+                    return token
                 }
                 else if(isDigit(this.c)){
-                    tok = new Token(T.INT, this.readNumber())
-                    return tok
+                    token = new Token(T.INT, this.readNumber())
+                    return token
                 }
                 else{
-                    tok = new Token(T.ILLEGAL, this.c)
+                    token = new Token(T.ILLEGAL, this.c)
                 }
         }
 
         this.read()
-        return tok
+        return token
     }
 
 
