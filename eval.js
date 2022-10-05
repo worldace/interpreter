@@ -250,8 +250,8 @@ function evalIndexExpression(left, index){
     if (left.type() == 'array' && index.type() == 'integer') {
         return evalArrayIndexExpression(left, index)
     }
-    else if (left.type() == 'hash') {
-        return evalHashIndexExpression(left, index)
+    else if (left.type() == 'hash' && index.type() == 'string') {
+        return evalHashKeyExpression(left, index)
     }
     else {
         return new Error(`index operator not supported: ${left.type()}`)
@@ -281,17 +281,15 @@ function evalHashLiteral(node, env){
         if (isError(value)) {
             return value
         }
-        const hashed = key.hashKey()
-        pairs.set(hashed, {key, value})
+        pairs.set(key.value, value)
     }
 
     return new Hash(pairs)
 }
 
 
-function evalHashIndexExpression(hash, index){
-    const pair = hash.paris.get(index.hashKey())
-    return pair?.value
+function evalHashKeyExpression(hash, key){
+    return hash.pairs.get(key.value)
 }
 
 

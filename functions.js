@@ -87,7 +87,7 @@ function print(...args){
         return new Error(`wrong number of arguments. got=${args.length}, want=1`)
     }
 
-    $output.append(document.createTextNode(args[0].inspect()), document.createElement('br'))
+    $output.append(document.createTextNode(args[0]?.inspect()), document.createElement('br'))
 
     return new Null()
 }

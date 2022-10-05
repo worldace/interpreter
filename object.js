@@ -22,12 +22,6 @@ export class Integer {
     type() {
         return 'integer'
     }
-    hashKey() {
-        return {
-            type: this.type(),
-            value: this.value
-        }
-    }
 }
 export class Boolean {
     value
