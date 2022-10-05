@@ -18,8 +18,8 @@ function Eval(node, env = new Environment(new Map)){
             return evalPrefixExpression(node.operator, Eval(node.right, env))
         case 'InfixExpression':
             return evalInfixExpression(node.operator, Eval(node.left, env), Eval(node.right, env))
-        case 'Identifier':
-            return evalIdentifier(node, env)
+        case 'ID':
+            return evalID(node, env)
         case 'StringLiteral':
             return new String(node.value)
         case 'IntegerLiteral':
@@ -199,12 +199,12 @@ function evalIntegerInfixExpression(operator, left, right){
 }
 
 
-function evalIdentifier(node, env){
+function evalID(node, env){
     const val = env.get(node.value)
     const builtin = Functions[node.value]
 
     if (!val && !builtin) {
-        return new Error(`identifier not found: ` + node.value)
+        return new Error(`id not found: ` + node.value)
     }
     if (val){
         return val

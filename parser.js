@@ -1,5 +1,5 @@
 import { T } from './token.js'
-import { Program, LetStatement, Identifier, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
+import { Program, LetStatement, ID, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
 
 
 const Priority = {
@@ -24,7 +24,7 @@ export class Parser {
         this.errors = []
 
         this.prefixFn = {
-            [T.IDENT]    : this.parseIdentifier,
+            [T.ID]       : this.parseID,
             [T.STRING]   : this.parseStringLiteral,
             [T.INT]      : this.parseIntegerLiteral,
             [T.BANG]     : this.parsePrefixExpression,
@@ -98,10 +98,10 @@ export class Parser {
 
     parseLetStatement(){
         const stmt = new LetStatement(this.T)
-        if(!this.expect(T.IDENT)){
+        if(!this.expect(T.ID)){
             return stmt
         }
-        stmt.name = new Identifier(this.T, this.T.literal)
+        stmt.name = new ID(this.T, this.T.literal)
         if(!this.expect(T.ASSIGN)){
             return stmt
         }
@@ -182,8 +182,8 @@ export class Parser {
     }
 
 
-    parseIdentifier(token) {
-        return new Identifier(token, token.literal)
+    parseID(token) {
+        return new ID(token, token.literal)
     }
 
 
@@ -266,13 +266,11 @@ export class Parser {
             return args
         }
         this.next()
-        const ident = new Identifier(this.T, this.T.literal)
-        args.push(ident)
+        args.push(new ID(this.T, this.T.literal))
         while(this.nT.type === T.COMMA){
             this.next()
             this.next()
-            const ident1 = new Identifier(this.T, this.T.literal)
-            args.push(ident1)
+            args.push(new ID(this.T, this.T.literal))
         }
         if (!this.expect(T.RPAREN)) {
             return args

@@ -54,7 +54,7 @@ class InfixExpression {
     }
 }
 
-class Identifier {
+class ID {
     token
     value
     constructor(token, value){
@@ -153,4 +153,4 @@ class HashLiteral {
 }
 
 
-export {Program, LetStatement, ReturnStatement, ExpressionStatement, PrefixExpression, InfixExpression, Identifier, StringLiteral, IntegerLiteral, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, ArrayLiteral, IndexExpression, HashLiteral}
+export {Program, LetStatement, ReturnStatement, ExpressionStatement, PrefixExpression, InfixExpression, ID, StringLiteral, IntegerLiteral, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, ArrayLiteral, IndexExpression, HashLiteral}

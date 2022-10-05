@@ -91,8 +91,8 @@ class Lexer{
                 break
             default:
                 if(isLetter(this.c)){
-                    const ident = this.readIdent()
-                    token = new Token(reserved[ident] || T.IDENT, ident)
+                    const id = this.readID()
+                    token = new Token(reserved[id] || T.ID, id)
                     return token
                 }
                 else if(isDigit(this.c)){
@@ -116,7 +116,7 @@ class Lexer{
     }
 
 
-    readIdent(){
+    readID(){
         const start = this.pos
         while(isLetter(this.c)){
             this.read()
