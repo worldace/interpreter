@@ -7,7 +7,6 @@ class Lexer{
         this.input = input
         this.c     = ''
         this.index = 0
-        this.pos   = 0
         this.read()
     }
 
@@ -111,36 +110,35 @@ class Lexer{
 
     read(){
         this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
-        this.pos = this.index
         this.index += 1
     }
 
 
     readID(){
-        const start = this.pos
+        const start = this.index-1
         while(isLetter(this.c)){
             this.read()
         }
-        return this.input.slice(start, this.pos)
+        return this.input.slice(start, this.index-1)
     }
 
 
     readString(){
-        const start = this.pos + 1
+        const start = this.index
         this.read()
         while(this.c != '"'){
             this.read()
         }
-        return this.input.slice(start, this.pos)
+        return this.input.slice(start, this.index-1)
     }
 
 
     readNumber(){
-        const start = this.pos
+        const start = this.index-1
         while(isDigit(this.c)){
             this.read()
         }
-        return this.input.slice(start, this.pos)
+        return this.input.slice(start, this.index-1)
     }
 
 
@@ -152,7 +150,7 @@ class Lexer{
 
 
     prefetch(){
-        return this.input[this.pos+1]
+        return this.input[this.index]
     }
 
 
