@@ -127,11 +127,9 @@ class Lexer{
 
     readString(){
         const start = this.pos + 1
-        while(true){
+        this.read()
+        while(this.c != '"'){
             this.read()
-            if (this.c == '"' || this.c == 'EOF') {
-                break
-            }
         }
         return this.input.slice(start, this.pos)
     }
