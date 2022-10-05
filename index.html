@@ -79,7 +79,7 @@ let map = fn(array, callback) {
             return accum;
         }
         else {
-            return iter(rest(array), push(accum, callback(first(array))));
+            return iter(rest(array), push(accum, callback(array[0])));
         }
     }
 

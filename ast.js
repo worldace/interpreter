@@ -8,7 +8,7 @@ class Program {
 
 class LetStatement {
     token
-    name
+    id
     value
     constructor(token){
         this.token = token
@@ -75,8 +75,9 @@ class StringLiteral {
 class IntegerLiteral {
     token
     value
-    constructor(token){
+    constructor(token, value){
         this.token = token
+        this.value = value
     }
 }
 

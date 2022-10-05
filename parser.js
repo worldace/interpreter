@@ -72,7 +72,8 @@ export class Parser {
 
 
     parse() {
-        const program = new Program();
+        const program = new Program()
+
         while(this.T.type !== T.EOF){
             const stmt = this.parseStatement()
             if(stmt){
@@ -80,6 +81,7 @@ export class Parser {
             }
             this.next()
         }
+
         return program
     }
 
@@ -98,15 +100,20 @@ export class Parser {
 
     parseLetStatement(){
         const stmt = new LetStatement(this.T)
+
         if(!this.expect(T.ID)){
             return stmt
         }
-        stmt.name = new ID(this.T, this.T.literal)
+
+        stmt.id = new ID(this.T, this.T.literal)
+
         if(!this.expect(T.ASSIGN)){
             return stmt
         }
+
         this.next()
         stmt.value = this.parseExpression()
+
         if(this.nT.type === T.SEMICOLON){
             this.next()
         }
@@ -193,10 +200,7 @@ export class Parser {
 
 
     parseIntegerLiteral(token) {
-        const lit = new IntegerLiteral(token)
-        const value = Number(token.literal)
-        lit.value = value
-        return lit
+        return new IntegerLiteral(token, Number(token.literal))
     }
 
 

@@ -11,7 +11,7 @@ function Eval(node, env = new Environment(new Map)){
         case 'ExpressionStatement':
             return Eval(node.expression, env)
         case 'LetStatement':
-            return evalLetStatement(node.name.value, Eval(node.value, env), env)
+            return evalLetStatement(node.id.value, Eval(node.value, env), env)
         case 'IfExpression':
             return evalIfExpression(node, env)
         case 'PrefixExpression':
@@ -75,12 +75,12 @@ function evalBlockStatement(block, env){
 }
 
 
-function evalLetStatement(name, value, env){
+function evalLetStatement(id, value, env){
     if (isError(value)) {
         return value
     }
 
-    return env.set(name, value)
+    return env.set(id, value)
 }
 
 
@@ -361,16 +361,16 @@ class Environment{
         this.outer = outer
     }
 
-    get(name){
-        const obj = this.store.get(name)
+    get(key){
+        const obj = this.store.get(key)
         if (!obj && this.outer != null) {
-            return this.outer.get(name)
+            return this.outer.get(key)
         }
         return obj
     }
 
-    set(name, val){
-        this.store.set(name, val)
+    set(key, val){
+        this.store.set(key, val)
         return val
     }
 }
