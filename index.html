@@ -8,8 +8,8 @@
 
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
 let a = (10 + 5) + 5 * 7
-let b = fn(n){ return n + 1 }
-let c = b(a)
+let b = fn(n, m){ return n + 1 }
+let c = b(a, 0)
 let d = [{"cat":"neko"}]
 if(c > 100){ print("100 over") }
 else{
@@ -29,8 +29,7 @@ import { Eval } from './eval.js'
 
 function interpreter(code){
     const lexer   = new Lexer(code)
-    const parser  = new Parser(lexer)
-    const program = parser.parse()
+    const program = new Parser(lexer).parse()
 
     console.dir(Lexer.dump(code))
     console.dir(program)
