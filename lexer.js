@@ -12,7 +12,7 @@ class Lexer{
 
     generate(){
         this.read()
-        this.readWhitespace()
+        this.readWhitespace(this.c)
 
         switch(this.c){
             case '"': return new Token(T.STRING, this.readString())
@@ -50,11 +50,11 @@ class Lexer{
                 }
             default:
                 if(isLetter(this.c)){
-                    const id = this.readID()
+                    const id = this.readID(this.c)
                     return new Token(reserved[id] || T.ID, id)
                 }
-                else if(isDigit(this.c)){
-                    return new Token(T.INT, this.readNumber())
+                else if(isNumber(this.c)){
+                    return new Token(T.INT, this.readNumber(this.c))
                 }
                 else{
                     return new Token(T.ILLEGAL, this.c)
@@ -66,48 +66,48 @@ class Lexer{
     read(){
         this.c = this.input[this.index] ?? 'EOF'
         this.index++
-    }
 
-
-    readID(){
-        const start = this.index-1
-        while(isLetter(this.c)){
-            this.read()
-        }
-        this.index--
-        return this.input.slice(start, this.index)
-    }
-
-
-    readNumber(){
-        const start = this.index-1
-        while(isDigit(this.c)){
-            this.read()
-        }
-        this.index--
-        return this.input.slice(start, this.index)
-    }
-
-
-    readString(){
-        const start = this.index
-        this.read()
-        while(this.c !== '"'){
-            this.read()
-        }
-        return this.input.slice(start, this.index-1)
-    }
-
-
-    readWhitespace(){
-        while(isWhitespace(this.c)){
-            this.read()
-        }
+        return this.c
     }
 
 
     prefetch(){
         return this.input[this.index]
+    }
+
+
+    readID(c){
+        while(isLetter(this.prefetch())){
+            c += this.read()
+        }
+        return c
+    }
+
+
+    readNumber(c){
+        while(isNumber(this.prefetch())){
+            c += this.read()
+        }
+        return c
+    }
+
+
+    readString(){
+        let c = ''
+
+        while(this.prefetch() !== '"'){
+            c += this.read()
+        }
+
+        this.read()
+        return c
+    }
+
+
+    readWhitespace(c){
+        while(isWhitespace(c)){
+            c = this.read()
+        }
     }
 
 
@@ -132,7 +132,7 @@ function isLetter(c){
 }
 
 
-function isDigit(c){
+function isNumber(c){
     return /[0-9]/.test(c)
 }
 
