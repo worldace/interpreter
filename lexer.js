@@ -5,7 +5,7 @@ class Lexer{
 
     constructor(input){
         this.input = input
-        this.index = 0
+        this.index = -1
     }
 
 
@@ -50,7 +50,7 @@ class Lexer{
             default:
                 if(isLetter(c)){
                     const id = this.readID(c)
-                    return new Token(reserved[id] || T.ID, id)
+                    return new Token(reserved[id] ?? T.ID, id)
                 }
                 else if(isNumber(c)){
                     return new Token(T.INT, this.readNumber(c))
@@ -64,12 +64,12 @@ class Lexer{
 
     read(){
         this.index++
-        return this.input[this.index-1] ?? 'EOF'
+        return this.input[this.index] ?? 'EOF'
     }
 
 
     after(){
-        return this.input[this.index]
+        return this.input[this.index+1]
     }
 
 
