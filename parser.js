@@ -53,6 +53,15 @@ class Parser {
     }
 
 
+    next(type) {
+        if(type && this.after.type !== type){
+            throw `[ParseError]`
+        }
+        this.token = this.after
+        this.after = this.lexer.generate()
+    }
+
+
     parse() {
         const program = new Program()
 
@@ -65,15 +74,6 @@ class Parser {
         }
 
         return program
-    }
-
-
-    next(type) {
-        if(type && this.after.type !== type){
-            throw `[ParseError]`
-        }
-        this.token = this.after
-        this.after = this.lexer.generate()
     }
 
 
@@ -220,29 +220,6 @@ class Parser {
     }
 
 
-    parseArguments() { // ( a , b )
-        const args = []
-
-        if (this.after.type === T.RPAREN) {
-            this.next()
-            return args
-        }
-
-        this.next()
-        args.push(new ID(this.token, this.token.literal))
-
-        while(this.after.type === T.COMMA){
-            this.next()
-            this.next()
-            args.push(new ID(this.token, this.token.literal))
-        }
-
-        this.next(T.RPAREN)
-
-        return args
-    }
-
-
     parseCall(token, fc) { // a ( b , c )
         const exp = new CallExpression(token, fc)
         exp.arguments = this.parseList(T.RPAREN)
@@ -320,6 +297,29 @@ class Parser {
         this.next(T.RPAREN)
 
         return exp
+    }
+
+
+    parseArguments() { // ( a , b )
+        const args = []
+
+        if (this.after.type === T.RPAREN) {
+            this.next()
+            return args
+        }
+
+        this.next()
+        args.push(new ID(this.token, this.token.literal))
+
+        while(this.after.type === T.COMMA){
+            this.next()
+            this.next()
+            args.push(new ID(this.token, this.token.literal))
+        }
+
+        this.next(T.RPAREN)
+
+        return args
     }
 
 

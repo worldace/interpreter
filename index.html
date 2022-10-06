@@ -7,14 +7,14 @@
 <body>
 
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
-let a = 50;
-let b = fn(n){ return n + 1; }
-let c = b(a);
-let d = [5,6,7];
-if(c > 100){ print("100 over"); }
+let a = (10 + 5) + 5 * 7
+let b = fn(n){ return n + 1 }
+let c = b(a)
+let d = [{"cat":"neko"}]
+if(c > 100){ print("100 over") }
 else{
-    if(c > 50){ print("50 over"); }
-    else{ print("50 less"); }
+    if(c > 50){ print(d[0]["cat"]) }
+    else{ print("50 less") }
 }
 </textarea><br>
 <button id="$button">実行 (Ctrl+Enter)</button><br>
