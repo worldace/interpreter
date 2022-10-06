@@ -32,7 +32,7 @@ class Lexer{
             case ']': return new Token(T.RBRACKET, ']')
             case 'EOF': return new Token(T.EOF, '')
             case '!':
-                if (this.prefetch() === '=') {
+                if (this.after() === '=') {
                     this.read()
                     return new Token(T.NOTEQ, '!=')
                 }
@@ -40,7 +40,7 @@ class Lexer{
                     return new Token(T.BANG, '!')
                 }
             case '=':
-                if(this.prefetch() === '=') {
+                if(this.after() === '=') {
                     this.read()
                     return new Token(T.EQ, '==')
                 }
@@ -68,13 +68,13 @@ class Lexer{
     }
 
 
-    prefetch(){
+    after(){
         return this.input[this.index]
     }
 
 
     readID(c){
-        while(isLetter(this.prefetch())){
+        while(isLetter(this.after())){
             c += this.read()
         }
         return c
@@ -82,7 +82,7 @@ class Lexer{
 
 
     readNumber(c){
-        while(isNumber(this.prefetch())){
+        while(isNumber(this.after())){
             c += this.read()
         }
         return c
@@ -92,7 +92,7 @@ class Lexer{
     readString(){
         let c = ''
 
-        while(this.prefetch() !== '"'){
+        while(this.after() !== '"'){
             c += this.read()
         }
 
