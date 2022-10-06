@@ -25,30 +25,30 @@ export class Parser {
 
         this.prefixFn = {
             [T.ID]       : this.parseID,
-            [T.STRING]   : this.parseStringLiteral,
-            [T.INT]      : this.parseIntegerLiteral,
-            [T.BANG]     : this.parsePrefixExpression,
-            [T.MINUS]    : this.parsePrefixExpression,
+            [T.STRING]   : this.parseString,
+            [T.INT]      : this.parseInteger,
+            [T.BANG]     : this.parsePrefix,
+            [T.MINUS]    : this.parsePrefix,
             [T.TRUE]     : this.parseBoolean,
             [T.FALSE]    : this.parseBoolean,
-            [T.IF]       : this.parseIfExpression,
-            [T.FUNCTION] : this.parseFunctionLiteral,
-            [T.LPAREN]   : this.parseGroupedExpression,
-            [T.LBRACKET] : this.parseArrayLiteral,
-            [T.LBRACE]   : this.parseHashLiteral,
+            [T.IF]       : this.parseIf,
+            [T.FUNCTION] : this.parseFunction,
+            [T.LPAREN]   : this.parseGroupe,
+            [T.LBRACKET] : this.parseArray,
+            [T.LBRACE]   : this.parseHash,
         }
 
         this.infixFn = {
-            [T.PLUS]     : this.parseInfixExpression,
-            [T.MINUS]    : this.parseInfixExpression,
-            [T.SLASH]    : this.parseInfixExpression,
-            [T.ASTERISK] : this.parseInfixExpression,
-            [T.EQ]       : this.parseInfixExpression,
-            [T.NOTEQ]    : this.parseInfixExpression,
-            [T.LT]       : this.parseInfixExpression,
-            [T.GT]       : this.parseInfixExpression,
-            [T.LBRACKET] : this.parseIndexExpression,
-            [T.LPAREN]   : this.parseCallExpression,
+            [T.PLUS]     : this.parseInfix,
+            [T.MINUS]    : this.parseInfix,
+            [T.SLASH]    : this.parseInfix,
+            [T.ASTERISK] : this.parseInfix,
+            [T.EQ]       : this.parseInfix,
+            [T.NOTEQ]    : this.parseInfix,
+            [T.LT]       : this.parseInfix,
+            [T.GT]       : this.parseInfix,
+            [T.LBRACKET] : this.parseIndex,
+            [T.LPAREN]   : this.parseCall,
         }
     }
 
@@ -89,16 +89,16 @@ export class Parser {
     parseStatement() {
         switch(this.T.type){
             case T.LET:
-                return this.parseLetStatement()
+                return this.parseLet()
             case T.RETURN:
-                return this.parseReturnStatement()
+                return this.parseReturn()
             default:
                 return this.parseExpressionStatement()
         }
     }
 
 
-    parseLetStatement(){
+    parseLet(){
         const stmt = new LetStatement(this.T)
 
         if(!this.expect(T.ID)){
@@ -122,7 +122,7 @@ export class Parser {
     }
 
 
-    parseReturnStatement() {
+    parseReturn() {
         const stmt = new ReturnStatement(this.T)
         this.next()
         stmt.returnValue = this.parseExpression()
@@ -170,7 +170,7 @@ export class Parser {
     }
 
 
-    parsePrefixExpression(token) {
+    parsePrefix(token) {
         const expression = new PrefixExpression(token, token.literal)
         this.next()
         expression.right = this.parseExpression(6)
@@ -179,7 +179,7 @@ export class Parser {
     }
 
 
-    parseInfixExpression(token, left) {
+    parseInfix(token, left) {
         const expression = new InfixExpression(token, token.literal, left)
         const priority = Priority[this.T.type] || 1
         this.next()
@@ -189,7 +189,7 @@ export class Parser {
     }
 
 
-    parseGroupedExpression() {
+    parseGroupe() {
         this.next()
         const exp = this.parseExpression()
 
@@ -206,12 +206,12 @@ export class Parser {
     }
 
 
-    parseStringLiteral() {
+    parseString() {
         return new StringLiteral(this.T, this.T.literal)
     }
 
 
-    parseIntegerLiteral(token) {
+    parseInteger(token) {
         return new IntegerLiteral(token, Number(token.literal))
     }
 
@@ -221,7 +221,7 @@ export class Parser {
     }
 
 
-    parseIfExpression(token) {
+    parseIf(token) {
         const expression = new IfExpression(token)
 
         if (!this.expect(T.LPAREN)) {
@@ -269,7 +269,7 @@ export class Parser {
     }
 
 
-    parseFunctionLiteral(token) {
+    parseFunction(token) {
         const lit = new FunctionLiteral(token)
 
         if (!this.expect(T.LPAREN)) {
@@ -313,7 +313,7 @@ export class Parser {
     }
 
 
-    parseCallExpression(token, fc) {
+    parseCall(token, fc) {
         const exp = new CallExpression(token, fc)
         exp.arguments = this.parseListExpression(T.RPAREN)
 
@@ -321,7 +321,7 @@ export class Parser {
     }
 
 
-    parseArrayLiteral() {
+    parseArray() {
         const array = new ArrayLiteral(this.T)
         array.elements = this.parseListExpression(T.RBRACKET)
 
@@ -354,7 +354,7 @@ export class Parser {
     }
 
 
-    parseIndexExpression(token, left) {
+    parseIndex(token, left) {
         const exp = new IndexExpression(this.T, left)
         this.next()
         exp.index = this.parseExpression()
@@ -367,7 +367,7 @@ export class Parser {
     }
 
 
-    parseHashLiteral() {
+    parseHash() {
         const hash = new HashLiteral(this.T)
         hash.pairs = new Map()
 

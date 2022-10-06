@@ -14,22 +14,22 @@ class Lexer{
         c = this.skipWhitespace(c)
 
         switch(c){
-            case '"': return new Token(T.STRING, this.readString())
             case ':': return new Token(T.COLON, ':')
             case ';': return new Token(T.SEMICOLON, ';')
-            case '(': return new Token(T.LPAREN, '(')
-            case ')': return new Token(T.RPAREN, ')')
             case ',': return new Token(T.COMMA, ',')
             case '+': return new Token(T.PLUS, '+')
             case '-': return new Token(T.MINUS, '-')
-            case '/': return new Token(T.SLASH, '/')
             case '*': return new Token(T.ASTERISK, '*')
+            case '/': return new Token(T.SLASH, '/')
             case '<': return new Token(T.LT, '<')
             case '>': return new Token(T.GT, '>')
+            case '(': return new Token(T.LPAREN, '(')
+            case ')': return new Token(T.RPAREN, ')')
             case '{': return new Token(T.LBRACE, '{')
             case '}': return new Token(T.RBRACE, '}')
             case '[': return new Token(T.LBRACKET, '[')
             case ']': return new Token(T.RBRACKET, ']')
+            case '"': return new Token(T.STRING, this.readString())
             case 'EOF': return new Token(T.EOF, '')
             case '!':
                 if (this.after() === '=') {
