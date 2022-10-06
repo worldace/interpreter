@@ -7,13 +7,11 @@ class Lexer{
         this.input = input
         this.c     = ''
         this.index = 0
-        this.read()
     }
 
 
     generate(){
-        let token
-
+        this.read()
         this.readWhitespace()
 
         switch(this.c){
@@ -21,90 +19,49 @@ class Lexer{
                 if(this.prefetch() === '=') {
                     const c = this.c
                     this.read()
-                    token = new Token(T.EQ, c + this.c)
+                    return new Token(T.EQ, c + this.c)
                 }
                 else{
-                    token = new Token(T.ASSIGN, this.c)
+                    return new Token(T.ASSIGN, this.c)
                 }
-                break
-            case '"':
-                token = new Token(T.STRING, this.readString())
-                break
-            case ':':
-                token = new Token(T.COLON, this.c)
-                break
-            case ';':
-                token = new Token(T.SEMICOLON, this.c)
-                break
-            case '(':
-                token = new Token(T.LPAREN, this.c)
-                break
-            case ')':
-                token = new Token(T.RPAREN, this.c)
-                break
-            case ',':
-                token = new Token(T.COMMA, this.c)
-                break
-            case '+':
-                token = new Token(T.PLUS, this.c)
-                break
-            case '-':
-                token = new Token(T.MINUS, this.c)
-                break
+            case '"': return new Token(T.STRING, this.readString())
+            case ':': return new Token(T.COLON, this.c)
+            case ';': return new Token(T.SEMICOLON, this.c)
+            case '(': return new Token(T.LPAREN, this.c)
+            case ')': return new Token(T.RPAREN, this.c)
+            case ',': return new Token(T.COMMA, this.c)
+            case '+': return new Token(T.PLUS, this.c)
+            case '-': return new Token(T.MINUS, this.c)
             case '!':
                 if (this.prefetch() === '=') {
                     const c = this.c
                     this.read()
-                    token = new Token(T.NOTEQ, c + this.c)
+                    return new Token(T.NOTEQ, c + this.c)
                 }
                 else {
-                    token = new Token(T.BANG, this.c)
+                    return new Token(T.BANG, this.c)
                 }
-                break
-            case '/':
-                token = new Token(T.SLASH, this.c)
-                break
-            case '*':
-                token = new Token(T.ASTERISK, this.c)
-                break
-            case '<':
-                token = new Token(T.LT, this.c)
-                break
-            case '>':
-                token = new Token(T.GT, this.c)
-                break
-            case '{':
-                token = new Token(T.LBRACE, this.c)
-                break
-            case '}':
-                token = new Token(T.RBRACE, this.c)
-                break
-            case '[':
-                token = new Token(T.LBRACKET, this.c)
-                break
-            case ']':
-                token = new Token(T.RBRACKET, this.c)
-                break
-            case 'EOF':
-                token = new Token(T.EOF, '')
-                break
+            case '/': return new Token(T.SLASH, this.c)
+            case '*': return new Token(T.ASTERISK, this.c)
+            case '<': return new Token(T.LT, this.c)
+            case '>': return new Token(T.GT, this.c)
+            case '{': return new Token(T.LBRACE, this.c)
+            case '}': return new Token(T.RBRACE, this.c)
+            case '[': return new Token(T.LBRACKET, this.c)
+            case ']': return new Token(T.RBRACKET, this.c)
+            case 'EOF': return new Token(T.EOF, '')
             default:
                 if(isLetter(this.c)){
                     const id = this.readID()
-                    token = new Token(reserved[id] || T.ID, id)
-                    return token
+                    return new Token(reserved[id] || T.ID, id)
                 }
                 else if(isDigit(this.c)){
-                    token = new Token(T.INT, this.readNumber())
-                    return token
+                    return new Token(T.INT, this.readNumber())
                 }
                 else{
-                    token = new Token(T.ILLEGAL, this.c)
+                    return new Token(T.ILLEGAL, this.c)
                 }
         }
-
-        this.read()
-        return token
     }
 
 
@@ -119,23 +76,25 @@ class Lexer{
         while(isLetter(this.c)){
             this.read()
         }
-        return this.input.slice(start, this.index-1)
-    }
-
-
-    readString(){
-        const start = this.index
-        this.read()
-        while(this.c != '"'){
-            this.read()
-        }
-        return this.input.slice(start, this.index-1)
+        this.index--
+        return this.input.slice(start, this.index)
     }
 
 
     readNumber(){
         const start = this.index-1
         while(isDigit(this.c)){
+            this.read()
+        }
+        this.index--
+        return this.input.slice(start, this.index)
+    }
+
+
+    readString(){
+        const start = this.index
+        this.read()
+        while(this.c !== '"'){
             this.read()
         }
         return this.input.slice(start, this.index-1)
