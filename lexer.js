@@ -17,38 +17,36 @@ class Lexer{
         switch(this.c){
             case '=':
                 if(this.prefetch() === '=') {
-                    const c = this.c
                     this.read()
-                    return new Token(T.EQ, c + this.c)
+                    return new Token(T.EQ, '==')
                 }
                 else{
-                    return new Token(T.ASSIGN, this.c)
+                    return new Token(T.ASSIGN, '=')
                 }
             case '"': return new Token(T.STRING, this.readString())
-            case ':': return new Token(T.COLON, this.c)
-            case ';': return new Token(T.SEMICOLON, this.c)
-            case '(': return new Token(T.LPAREN, this.c)
-            case ')': return new Token(T.RPAREN, this.c)
-            case ',': return new Token(T.COMMA, this.c)
-            case '+': return new Token(T.PLUS, this.c)
-            case '-': return new Token(T.MINUS, this.c)
+            case ':': return new Token(T.COLON, ':')
+            case ';': return new Token(T.SEMICOLON, ';')
+            case '(': return new Token(T.LPAREN, '(')
+            case ')': return new Token(T.RPAREN, ')')
+            case ',': return new Token(T.COMMA, ',')
+            case '+': return new Token(T.PLUS, '+')
+            case '-': return new Token(T.MINUS, '-')
             case '!':
                 if (this.prefetch() === '=') {
-                    const c = this.c
                     this.read()
-                    return new Token(T.NOTEQ, c + this.c)
+                    return new Token(T.NOTEQ, '!=')
                 }
                 else {
-                    return new Token(T.BANG, this.c)
+                    return new Token(T.BANG, '!')
                 }
-            case '/': return new Token(T.SLASH, this.c)
-            case '*': return new Token(T.ASTERISK, this.c)
-            case '<': return new Token(T.LT, this.c)
-            case '>': return new Token(T.GT, this.c)
-            case '{': return new Token(T.LBRACE, this.c)
-            case '}': return new Token(T.RBRACE, this.c)
-            case '[': return new Token(T.LBRACKET, this.c)
-            case ']': return new Token(T.RBRACKET, this.c)
+            case '/': return new Token(T.SLASH, '/')
+            case '*': return new Token(T.ASTERISK, '*')
+            case '<': return new Token(T.LT, '<')
+            case '>': return new Token(T.GT, '>')
+            case '{': return new Token(T.LBRACE, '{')
+            case '}': return new Token(T.RBRACE, '}')
+            case '[': return new Token(T.LBRACKET, '[')
+            case ']': return new Token(T.RBRACKET, ']')
             case 'EOF': return new Token(T.EOF, '')
             default:
                 if(isLetter(this.c)){
@@ -66,7 +64,7 @@ class Lexer{
 
 
     read(){
-        this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
+        this.c = this.input[this.index] ?? 'EOF'
         this.index++
     }
 
