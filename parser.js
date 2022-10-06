@@ -53,6 +53,21 @@ export class Parser {
     }
 
 
+    parse() {
+        const program = new Program()
+
+        while(this.T.type !== T.EOF){
+            const stmt = this.parseStatement()
+            if(stmt){
+                program.statements.push(stmt)
+            }
+            this.next()
+        }
+
+        return program
+    }
+
+
     next() {
         this.T  = this.nT
         this.nT = this.lexer.generate()
@@ -68,21 +83,6 @@ export class Parser {
             this.errors.push(`expected next token to be ${type}, got ${this.nT.type} instead`)
             return false
         }
-    }
-
-
-    parse() {
-        const program = new Program()
-
-        while(this.T.type !== T.EOF){
-            const stmt = this.parseStatement()
-            if(stmt){
-                program.statements.push(stmt)
-            }
-            this.next()
-        }
-
-        return program
     }
 
 

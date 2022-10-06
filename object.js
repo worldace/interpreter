@@ -1,69 +1,132 @@
 
-export class String {
+class String {
     value
+
     constructor(value){
         this.value = value
     }
-    inspect() {
-        return this.value
-    }
+
     type() {
         return 'string'
     }
-}
-export class Integer {
-    value
-    constructor(value){
-        this.value = value
-    }
+
     inspect() {
         return this.value
     }
+}
+
+
+class Integer {
+    value
+
+    constructor(value){
+        this.value = value
+    }
+
     type() {
         return 'integer'
     }
-}
-export class Boolean {
-    value
-    constructor(value){
-        this.value = value
-    }
+
     inspect() {
         return this.value
     }
-    type() {
-        return 'boolean'
-    }
 }
-export class Null {
-    inspect() {
-        return 'null'
-    }
-    type() {
-        return 'null'
-    }
-}
-export class ReturnValue {
+
+
+class Boolean {
     value
+
     constructor(value){
         this.value = value
     }
-    inspect() {
-        return this.value.inspect()
-    }
+
     type() {
-        return 'return'
+        return 'boolean'
+    }
+
+    inspect() {
+        return this.value
     }
 }
-export class Function {
+
+
+class Null {
+
+    type() {
+        return 'null'
+    }
+
+    inspect() {
+        return 'null'
+    }
+}
+
+
+class Array {
+    elements
+
+    constructor(elements){
+        this.elements = elements
+    }
+
+    type() {
+        return 'array'
+    }
+
+    inspect() {
+        let out = []
+        let elements = []
+        for (const e of this.elements){
+            elements.push(e.inspect())
+        }
+        out.push('[')
+        out.push(elements.join(','))
+        out.push(']')
+        return out.join('')
+    }
+}
+
+
+class Hash {
+    pairs
+
+    constructor(pairs){
+        this.pairs = pairs
+    }
+
+    type(){
+        return 'hash'
+    }
+
+    inspect() {
+        let out = []
+        let pairs = []
+        for (const [key, value] of this.pairs){
+            pairs.push(key.inspect() + ':' + value.inspect())
+        }
+        out.push('{')
+        out.push(pairs.join(''))
+        out.push('}')
+        return out.join('')
+    }
+}
+
+
+class Function {
     parameters
     body
     env
+
     constructor(parameters, body, env){
         this.parameters = parameters
         this.body = body
         this.env = env
     }
+
+    type() {
+        return 'function'
+    }
+
     inspect() {
         let out = []
         let params = []
@@ -78,71 +141,59 @@ export class Function {
         out.push('\n}')
         return out.join('')
     }
+}
+
+
+class ReturnValue {
+    value
+
+    constructor(value){
+        this.value = value
+    }
+
     type() {
-        return 'function'
+        return 'return'
+    }
+
+    inspect() {
+        return this.value.inspect()
     }
 }
-export class Builtin {
+
+
+class Builtin {
     fn
+
     constructor(fn){
         this.fn = fn
     }
-    inspect() {
-        return 'builtin function'
-    }
+
     type() {
         return 'builtin'
     }
-}
-export class Array {
-    elements
-    constructor(elements){
-        this.elements = elements
-    }
+
     inspect() {
-        let out = []
-        let elements = []
-        for (const e of this.elements){
-            elements.push(e.inspect())
-        }
-        out.push('[')
-        out.push(elements.join(','))
-        out.push(']')
-        return out.join('')
-    }
-    type() {
-        return 'array'
+        return 'builtin function'
     }
 }
-export class Hash {
-    pairs
-    constructor(pairs){
-        this.pairs = pairs
-    }
-    inspect() {
-        let out = []
-        let pairs = []
-        for (const [key, value] of this.pairs){
-            pairs.push(key.inspect() + ':' + value.inspect())
-        }
-        out.push('{')
-        out.push(pairs.join(''))
-        out.push('}')
-        return out.join('')
-    }
-    type(){
-        return 'hash'
-    }
-}
-export class Error {
+
+
+class Error {
     message
+
     constructor(message){
         this.message = message
     }
-    inspect() {
-        return 'ERROR: ' + this.message
-    }
+
     type() {
         return 'error'
     }
+
+    inspect() {
+        return 'ERROR: ' + this.message
+    }
 }
+
+
+
+export {String, Integer, Boolean, Null, Array, Hash, Function, ReturnValue, Builtin, Error}

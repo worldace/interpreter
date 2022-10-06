@@ -110,7 +110,7 @@ class Lexer{
 
     read(){
         this.c = this.index < this.input.length ? this.input[this.index] : 'EOF'
-        this.index += 1
+        this.index++
     }
 
 
@@ -155,8 +155,9 @@ class Lexer{
 
 
     static dump(code){
-        let result  = []
         const lexer = new Lexer(code)
+        let result  = []
+
         while(true){
             const token = lexer.generate()
             result.push(token)
