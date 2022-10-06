@@ -34,9 +34,6 @@ function interpreter(code){
 
     console.dir(Lexer.dump(code))
     console.dir(program)
-    for(const v of parser.errors){
-        console.log(`[ERROR] ${v}`)
-    }
 
     return Eval(program)
 }

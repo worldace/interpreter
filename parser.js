@@ -20,9 +20,8 @@ class Parser {
 
     constructor(lexer){
         this.lexer  = lexer
-        this.token      = this.lexer.generate()
-        this.after     = this.lexer.generate()
-        this.errors = []
+        this.token  = this.lexer.generate()
+        this.after  = this.lexer.generate()
 
         this.prefixFn = {
             [T.ID]       : this.parseID,
@@ -69,21 +68,12 @@ class Parser {
     }
 
 
-    next() {
-        this.token  = this.after
+    next(type) {
+        if(type && this.after.type !== type){
+            throw `[ParseError]`
+        }
+        this.token = this.after
         this.after = this.lexer.generate()
-    }
-
-
-    expect(type){
-        if(this.after.type === type){
-            this.next()
-            return true
-        }
-        else {
-            this.errors.push(`expected next token to be ${type}, got ${this.after.type} instead`)
-            return false
-        }
     }
 
 
@@ -99,19 +89,12 @@ class Parser {
     }
 
 
-    parseLet(){
+    parseLet(){ // LET ID = exp;
         const stmt = new LetStatement(this.token)
 
-        if(!this.expect(T.ID)){
-            return stmt
-        }
-
+        this.next(T.ID)
         stmt.id = new ID(this.token, this.token.literal)
-
-        if(!this.expect(T.ASSIGN)){
-            return stmt
-        }
-
+        this.next(T.ASSIGN)
         this.next()
         stmt.value = this.parseExpression()
 
@@ -123,7 +106,7 @@ class Parser {
     }
 
 
-    parseReturn() {
+    parseReturn() { // return exp;
         const stmt = new ReturnStatement(this.token)
         this.next()
         stmt.returnValue = this.parseExpression()
@@ -187,30 +170,20 @@ class Parser {
     }
 
 
-    parseIf(token) {
+    parseIf(token) { // if ( condition ) { block } else { block }
         const expression = new IfExpression(token)
 
-        if (!this.expect(T.LPAREN)) {
-            return expression
-        }
-
+        this.next(T.LPAREN)
         this.next()
         expression.condition = this.parseExpression()
-
-        if (!this.expect(T.RPAREN)) {
-            return expression
-        }
-        if (!this.expect(T.LBRACE)) {
-            return expression
-        }
+        this.next(T.RPAREN)
+        this.next(T.LBRACE)
 
         expression.consequence = this.parseBlock(this.token)
 
         if (this.after.type === T.ELSE) {
             this.next()
-            if (!this.expect(T.LBRACE)) {
-                return expression
-            }
+            this.next(T.LBRACE)
             expression.alternative = this.parseBlock(this.token)
         }
 
@@ -235,26 +208,19 @@ class Parser {
     }
 
 
-    parseFunction(token) {
+    parseFunction(token) { // fn ( arguments ) { block }
         const lit = new FunctionLiteral(token)
 
-        if (!this.expect(T.LPAREN)) {
-            return lit
-        }
-
+        this.next(T.LPAREN)
         lit.parameters = this.parseArguments()
-
-        if (!this.expect(T.LBRACE)) {
-            return lit
-        }
-
+        this.next(T.LBRACE)
         lit.body = this.parseBlock(token)
 
         return lit
     }
 
 
-    parseArguments() {
+    parseArguments() { // ( a , b )
         const args = []
 
         if (this.after.type === T.RPAREN) {
@@ -271,15 +237,13 @@ class Parser {
             args.push(new ID(this.token, this.token.literal))
         }
 
-        if (!this.expect(T.RPAREN)) {
-            return args
-        }
+        this.next(T.RPAREN)
 
         return args
     }
 
 
-    parseCall(token, fc) {
+    parseCall(token, fc) { // a ( b , c )
         const exp = new CallExpression(token, fc)
         exp.arguments = this.parseList(T.RPAREN)
 
@@ -287,7 +251,7 @@ class Parser {
     }
 
 
-    parseArray() {
+    parseArray() { // [ exp , exp ]
         const array = new ArrayLiteral(this.token)
         array.elements = this.parseList(T.RBRACKET)
 
@@ -295,40 +259,34 @@ class Parser {
     }
 
 
-    parseIndex(token, left) {
+    parseIndex(token, left) { // [ 0 ]
         const exp = new IndexExpression(this.token, left)
         this.next()
         exp.index = this.parseExpression()
-
-        if (!this.expect(T.RBRACKET)) {
-            return token
-        }
+        this.next(T.RBRACKET)
 
         return exp
     }
 
 
-    parseHash() {
+    parseHash() { // { " key " : " value " ,  " key " : " value "  }
         const hash = new HashLiteral(this.token)
         hash.pairs = new Map()
 
         while(this.after.type !== T.RBRACE){
             this.next()
             const key = this.parseExpression()
-            if (!this.expect(T.COLON)) {
-                return null
-            }
+            this.next(T.COLON)
             this.next()
             const value = this.parseExpression()
             hash.pairs.set(key, value)
-            if (this.after.type !== T.RBRACE && !this.expect(T.COMMA)) {
-                return null
+
+            if (this.after.type !== T.RBRACE && this.next(T.COMMA)) {
+                throw `[parse error]`
             }
         }
 
-        if (!this.expect(T.RBRACE)) {
-            return null
-        }
+        this.next(T.RBRACE)
 
         return hash
     }
@@ -338,8 +296,7 @@ class Parser {
         const prefix = this.prefixFn[this.token.type]
 
         if (prefix == null) {
-            this.errors.push(`no prefix parse function for ${this.token.type} found`)
-            return null
+            throw `[parse error]`
         }
 
         let left = prefix.bind(this)(this.token)
@@ -357,13 +314,10 @@ class Parser {
     }
 
 
-    parseGroupe() {
+    parseGroupe() { // ( exp )
         this.next()
         const exp = this.parseExpression()
-
-        if (!this.expect(T.RPAREN)) {
-            return exp
-        }
+        this.next(T.RPAREN)
 
         return exp
     }
@@ -386,9 +340,7 @@ class Parser {
             list.push(this.parseExpression())
         }
 
-        if (!this.expect(end)) {
-            return null
-        }
+        this.next(end)
 
         return list
     }
