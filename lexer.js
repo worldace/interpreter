@@ -3,8 +3,8 @@ import {T, Token, reserved} from './token.js'
 
 class Lexer{
 
-    constructor(input){
-        this.input = input
+    constructor(code){
+        this.code  = code
         this.index = -1
     }
 
@@ -64,12 +64,12 @@ class Lexer{
 
     read(){
         this.index++
-        return this.input[this.index] ?? 'EOF'
+        return this.code[this.index] ?? 'EOF'
     }
 
 
     after(){
-        return this.input[this.index+1]
+        return this.code[this.index+1]
     }
 
 
