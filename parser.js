@@ -2,54 +2,12 @@ import { T } from './token.js'
 import { Program, LetStatement, ID, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
 
 
-const Priority = {
-    [T.EQ]       : 2,
-    [T.NOTEQ]    : 2,
-    [T.LT]       : 3,
-    [T.GT]       : 3,
-    [T.PLUS]     : 4,
-    [T.MINUS]    : 4,
-    [T.SLASH]    : 5,
-    [T.ASTERISK] : 5,
-    [T.LPAREN]   : 7,
-    [T.LBRACKET] : 8,
-}
-
-
 class Parser {
 
     constructor(lexer){
         this.lexer  = lexer
         this.token  = this.lexer.generate()
         this.after  = this.lexer.generate()
-
-        this.prefixFn = {
-            [T.ID]       : this.parseID,
-            [T.STRING]   : this.parseString,
-            [T.INT]      : this.parseInteger,
-            [T.BANG]     : this.parsePrefix,
-            [T.MINUS]    : this.parsePrefix,
-            [T.TRUE]     : this.parseBoolean,
-            [T.FALSE]    : this.parseBoolean,
-            [T.IF]       : this.parseIf,
-            [T.FUNCTION] : this.parseFunction,
-            [T.LPAREN]   : this.parseGroupe,
-            [T.LBRACKET] : this.parseArray,
-            [T.LBRACE]   : this.parseHash,
-        }
-
-        this.infixFn = {
-            [T.PLUS]     : this.parseInfix,
-            [T.MINUS]    : this.parseInfix,
-            [T.SLASH]    : this.parseInfix,
-            [T.ASTERISK] : this.parseInfix,
-            [T.EQ]       : this.parseInfix,
-            [T.NOTEQ]    : this.parseInfix,
-            [T.LT]       : this.parseInfix,
-            [T.GT]       : this.parseInfix,
-            [T.LBRACKET] : this.parseIndex,
-            [T.LPAREN]   : this.parseCall,
-        }
     }
 
 
@@ -142,7 +100,7 @@ class Parser {
 
     parseInfix(token, left) {
         const expression = new InfixExpression(token, token.literal, left)
-        const priority = Priority[this.token.type] || 1
+        const priority   = getPriority(this.token.type)
         this.next()
         expression.right = this.parseExpression(priority)
 
@@ -269,28 +227,6 @@ class Parser {
     }
 
 
-    parseExpression(priority = 1) {
-        const prefix = this.prefixFn[this.token.type]
-
-        if (prefix == null) {
-            throw `[parse error]`
-        }
-
-        let left = prefix.bind(this)(this.token)
-
-        while(this.token.type !== T.SEMICOLON && priority < (Priority[this.after.type] || 1)){
-            const infix = this.infixFn[this.after.type]
-            if (infix == null){
-                return left
-            }
-            this.next()
-            left = infix.bind(this)(this.token, left)
-        }
-
-        return left
-    }
-
-
     parseGroupe() { // ( exp )
         this.next()
         const exp = this.parseExpression()
@@ -344,8 +280,72 @@ class Parser {
 
         return list
     }
+
+
+    parseExpression(priority = 1) {
+        let left = this.prefixFn(this.token)
+
+        while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
+            this.next()
+            left = this.infixFn(this.token, left)
+        }
+
+        return left
+    }
+
+
+    prefixFn(token){
+        switch(token.type){
+            case T.ID       : return this.parseID(token)
+            case T.STRING   : return this.parseString(token)
+            case T.INT      : return this.parseInteger(token)
+            case T.BANG     : return this.parsePrefix(token)
+            case T.MINUS    : return this.parsePrefix(token)
+            case T.TRUE     : return this.parseBoolean(token)
+            case T.FALSE    : return this.parseBoolean(token)
+            case T.IF       : return this.parseIf(token)
+            case T.FUNCTION : return this.parseFunction(token)
+            case T.LPAREN   : return this.parseGroupe(token)
+            case T.LBRACKET : return this.parseArray(token)
+            case T.LBRACE   : return this.parseHash(token)
+        }
+    }
+
+
+    infixFn(token, left){
+        switch(token.type){
+            case T.PLUS     : return this.parseInfix(token, left)
+            case T.MINUS    : return this.parseInfix(token, left)
+            case T.ASTERISK : return this.parseInfix(token, left)
+            case T.SLASH    : return this.parseInfix(token, left)
+            case T.EQ       : return this.parseInfix(token, left)
+            case T.NOTEQ    : return this.parseInfix(token, left)
+            case T.LT       : return this.parseInfix(token, left)
+            case T.GT       : return this.parseInfix(token, left)
+            case T.LBRACKET : return this.parseIndex(token, left)
+            case T.LPAREN   : return this.parseCall(token, left)
+        }
+    }
+
+
 }
 
+
+function getPriority(type){
+    switch(type){
+        case T.EQ       : return 2
+        case T.NOTEQ    : return 2
+        case T.LT       : return 3
+        case T.GT       : return 3
+        case T.PLUS     : return 4
+        case T.MINUS    : return 4
+        case T.SLASH    : return 5
+        case T.ASTERISK : return 5
+        case T.LPAREN   : return 7
+        case T.LBRACKET : return 8
+        default         : return 1
+    }
+}
 
 
 export {Parser}
