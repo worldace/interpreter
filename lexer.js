@@ -15,14 +15,6 @@ class Lexer{
         this.readWhitespace()
 
         switch(this.c){
-            case '=':
-                if(this.prefetch() === '=') {
-                    this.read()
-                    return new Token(T.EQ, '==')
-                }
-                else{
-                    return new Token(T.ASSIGN, '=')
-                }
             case '"': return new Token(T.STRING, this.readString())
             case ':': return new Token(T.COLON, ':')
             case ';': return new Token(T.SEMICOLON, ';')
@@ -31,14 +23,6 @@ class Lexer{
             case ',': return new Token(T.COMMA, ',')
             case '+': return new Token(T.PLUS, '+')
             case '-': return new Token(T.MINUS, '-')
-            case '!':
-                if (this.prefetch() === '=') {
-                    this.read()
-                    return new Token(T.NOTEQ, '!=')
-                }
-                else {
-                    return new Token(T.BANG, '!')
-                }
             case '/': return new Token(T.SLASH, '/')
             case '*': return new Token(T.ASTERISK, '*')
             case '<': return new Token(T.LT, '<')
@@ -48,6 +32,22 @@ class Lexer{
             case '[': return new Token(T.LBRACKET, '[')
             case ']': return new Token(T.RBRACKET, ']')
             case 'EOF': return new Token(T.EOF, '')
+            case '!':
+                if (this.prefetch() === '=') {
+                    this.read()
+                    return new Token(T.NOTEQ, '!=')
+                }
+                else {
+                    return new Token(T.BANG, '!')
+                }
+            case '=':
+                if(this.prefetch() === '=') {
+                    this.read()
+                    return new Token(T.EQ, '==')
+                }
+                else{
+                    return new Token(T.ASSIGN, '=')
+                }
             default:
                 if(isLetter(this.c)){
                     const id = this.readID()
