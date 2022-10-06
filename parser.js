@@ -16,11 +16,12 @@ const Priority = {
 }
 
 
-export class Parser {
+class Parser {
+
     constructor(lexer){
         this.lexer  = lexer
-        this.T      = this.lexer.generate()
-        this.nT     = this.lexer.generate()
+        this.token      = this.lexer.generate()
+        this.after     = this.lexer.generate()
         this.errors = []
 
         this.prefixFn = {
@@ -56,7 +57,7 @@ export class Parser {
     parse() {
         const program = new Program()
 
-        while(this.T.type !== T.EOF){
+        while(this.token.type !== T.EOF){
             const stmt = this.parseStatement()
             if(stmt){
                 program.statements.push(stmt)
@@ -69,25 +70,25 @@ export class Parser {
 
 
     next() {
-        this.T  = this.nT
-        this.nT = this.lexer.generate()
+        this.token  = this.after
+        this.after = this.lexer.generate()
     }
 
 
     expect(type){
-        if(this.nT.type === type){
+        if(this.after.type === type){
             this.next()
             return true
         }
         else {
-            this.errors.push(`expected next token to be ${type}, got ${this.nT.type} instead`)
+            this.errors.push(`expected next token to be ${type}, got ${this.after.type} instead`)
             return false
         }
     }
 
 
     parseStatement() {
-        switch(this.T.type){
+        switch(this.token.type){
             case T.LET:
                 return this.parseLet()
             case T.RETURN:
@@ -99,13 +100,13 @@ export class Parser {
 
 
     parseLet(){
-        const stmt = new LetStatement(this.T)
+        const stmt = new LetStatement(this.token)
 
         if(!this.expect(T.ID)){
             return stmt
         }
 
-        stmt.id = new ID(this.T, this.T.literal)
+        stmt.id = new ID(this.token, this.token.literal)
 
         if(!this.expect(T.ASSIGN)){
             return stmt
@@ -114,7 +115,7 @@ export class Parser {
         this.next()
         stmt.value = this.parseExpression()
 
-        if(this.nT.type === T.SEMICOLON){
+        if(this.after.type === T.SEMICOLON){
             this.next()
         }
 
@@ -123,11 +124,11 @@ export class Parser {
 
 
     parseReturn() {
-        const stmt = new ReturnStatement(this.T)
+        const stmt = new ReturnStatement(this.token)
         this.next()
         stmt.returnValue = this.parseExpression()
 
-        if (this.nT.type === T.SEMICOLON) {
+        if (this.after.type === T.SEMICOLON) {
             this.next()
         }
 
@@ -136,37 +137,14 @@ export class Parser {
 
 
     parseExpressionStatement() {
-        const stmt = new ExpressionStatement(this.T)
+        const stmt = new ExpressionStatement(this.token)
         stmt.expression = this.parseExpression()
 
-        if (this.nT.type === T.SEMICOLON) {
+        if (this.after.type === T.SEMICOLON) {
             this.next()
         }
 
         return stmt
-    }
-
-
-    parseExpression(priority = 1) {
-        const prefix = this.prefixFn[this.T.type]
-
-        if (prefix == null) {
-            this.errors.push(`no prefix parse function for ${this.T.type} found`)
-            return null
-        }
-
-        let left = prefix.bind(this)(this.T)
-
-        while(this.T.type !== T.SEMICOLON && priority < (Priority[this.nT.type] || 1)){
-            const infix = this.infixFn[this.nT.type]
-            if (infix == null){
-                return left
-            }
-            this.next()
-            left = infix.bind(this)(this.T, left)
-        }
-
-        return left
     }
 
 
@@ -181,23 +159,11 @@ export class Parser {
 
     parseInfix(token, left) {
         const expression = new InfixExpression(token, token.literal, left)
-        const priority = Priority[this.T.type] || 1
+        const priority = Priority[this.token.type] || 1
         this.next()
         expression.right = this.parseExpression(priority)
 
         return expression
-    }
-
-
-    parseGroupe() {
-        this.next()
-        const exp = this.parseExpression()
-
-        if (!this.expect(T.RPAREN)) {
-            return exp
-        }
-
-        return exp
     }
 
 
@@ -207,7 +173,7 @@ export class Parser {
 
 
     parseString() {
-        return new StringLiteral(this.T, this.T.literal)
+        return new StringLiteral(this.token, this.token.literal)
     }
 
 
@@ -217,7 +183,7 @@ export class Parser {
 
 
     parseBoolean(token) {
-        return new Boolean(token, this.T.type === T.TRUE)
+        return new Boolean(token, this.token.type === T.TRUE)
     }
 
 
@@ -238,26 +204,26 @@ export class Parser {
             return expression
         }
 
-        expression.consequence = this.parseBlockStatement(this.T)
+        expression.consequence = this.parseBlock(this.token)
 
-        if (this.nT.type === T.ELSE) {
+        if (this.after.type === T.ELSE) {
             this.next()
             if (!this.expect(T.LBRACE)) {
                 return expression
             }
-            expression.alternative = this.parseBlockStatement(this.T)
+            expression.alternative = this.parseBlock(this.token)
         }
 
         return expression
     }
 
 
-    parseBlockStatement(token) {
+    parseBlock(token) {
         const block = new BlockStatement(token)
         block.statements = []
         this.next()
 
-        while(this.T.type !== T.RBRACE && this.T.type !== T.EOF){
+        while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
             const stmt = this.parseStatement()
             if (stmt != null) {
                 block.statements.push(stmt)
@@ -276,33 +242,33 @@ export class Parser {
             return lit
         }
 
-        lit.parameters = this.parseFunctionArguments()
+        lit.parameters = this.parseArguments()
 
         if (!this.expect(T.LBRACE)) {
             return lit
         }
 
-        lit.body = this.parseBlockStatement(token)
+        lit.body = this.parseBlock(token)
 
         return lit
     }
 
 
-    parseFunctionArguments() {
+    parseArguments() {
         const args = []
 
-        if (this.nT.type === T.RPAREN) {
+        if (this.after.type === T.RPAREN) {
             this.next()
             return args
         }
 
         this.next()
-        args.push(new ID(this.T, this.T.literal))
+        args.push(new ID(this.token, this.token.literal))
 
-        while(this.nT.type === T.COMMA){
+        while(this.after.type === T.COMMA){
             this.next()
             this.next()
-            args.push(new ID(this.T, this.T.literal))
+            args.push(new ID(this.token, this.token.literal))
         }
 
         if (!this.expect(T.RPAREN)) {
@@ -315,47 +281,22 @@ export class Parser {
 
     parseCall(token, fc) {
         const exp = new CallExpression(token, fc)
-        exp.arguments = this.parseListExpression(T.RPAREN)
+        exp.arguments = this.parseList(T.RPAREN)
 
         return exp
     }
 
 
     parseArray() {
-        const array = new ArrayLiteral(this.T)
-        array.elements = this.parseListExpression(T.RBRACKET)
+        const array = new ArrayLiteral(this.token)
+        array.elements = this.parseList(T.RBRACKET)
 
         return array
     }
 
 
-    parseListExpression(end) {
-        let list = []
-
-        if (this.nT.type === end) {
-            this.next()
-            return list
-        }
-
-        this.next()
-        list.push(this.parseExpression())
-
-        while(this.nT.type === T.COMMA){
-            this.next()
-            this.next()
-            list.push(this.parseExpression())
-        }
-
-        if (!this.expect(end)) {
-            return null
-        }
-
-        return list
-    }
-
-
     parseIndex(token, left) {
-        const exp = new IndexExpression(this.T, left)
+        const exp = new IndexExpression(this.token, left)
         this.next()
         exp.index = this.parseExpression()
 
@@ -368,10 +309,10 @@ export class Parser {
 
 
     parseHash() {
-        const hash = new HashLiteral(this.T)
+        const hash = new HashLiteral(this.token)
         hash.pairs = new Map()
 
-        while(this.nT.type !== T.RBRACE){
+        while(this.after.type !== T.RBRACE){
             this.next()
             const key = this.parseExpression()
             if (!this.expect(T.COLON)) {
@@ -380,7 +321,7 @@ export class Parser {
             this.next()
             const value = this.parseExpression()
             hash.pairs.set(key, value)
-            if (this.nT.type !== T.RBRACE && !this.expect(T.COMMA)) {
+            if (this.after.type !== T.RBRACE && !this.expect(T.COMMA)) {
                 return null
             }
         }
@@ -391,4 +332,68 @@ export class Parser {
 
         return hash
     }
+
+
+    parseExpression(priority = 1) {
+        const prefix = this.prefixFn[this.token.type]
+
+        if (prefix == null) {
+            this.errors.push(`no prefix parse function for ${this.token.type} found`)
+            return null
+        }
+
+        let left = prefix.bind(this)(this.token)
+
+        while(this.token.type !== T.SEMICOLON && priority < (Priority[this.after.type] || 1)){
+            const infix = this.infixFn[this.after.type]
+            if (infix == null){
+                return left
+            }
+            this.next()
+            left = infix.bind(this)(this.token, left)
+        }
+
+        return left
+    }
+
+
+    parseGroupe() {
+        this.next()
+        const exp = this.parseExpression()
+
+        if (!this.expect(T.RPAREN)) {
+            return exp
+        }
+
+        return exp
+    }
+
+
+    parseList(end) {
+        let list = []
+
+        if (this.after.type === end) {
+            this.next()
+            return list
+        }
+
+        this.next()
+        list.push(this.parseExpression())
+
+        while(this.after.type === T.COMMA){
+            this.next()
+            this.next()
+            list.push(this.parseExpression())
+        }
+
+        if (!this.expect(end)) {
+            return null
+        }
+
+        return list
+    }
 }
+
+
+
+export {Parser}
