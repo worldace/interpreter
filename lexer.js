@@ -5,16 +5,15 @@ class Lexer{
 
     constructor(input){
         this.input = input
-        this.c     = ''
         this.index = 0
     }
 
 
     generate(){
-        this.read()
-        this.readWhitespace(this.c)
+        let c = this.read()
+        c = this.skipWhitespace(c)
 
-        switch(this.c){
+        switch(c){
             case '"': return new Token(T.STRING, this.readString())
             case ':': return new Token(T.COLON, ':')
             case ';': return new Token(T.SEMICOLON, ';')
@@ -49,25 +48,23 @@ class Lexer{
                     return new Token(T.ASSIGN, '=')
                 }
             default:
-                if(isLetter(this.c)){
-                    const id = this.readID(this.c)
+                if(isLetter(c)){
+                    const id = this.readID(c)
                     return new Token(reserved[id] || T.ID, id)
                 }
-                else if(isNumber(this.c)){
-                    return new Token(T.INT, this.readNumber(this.c))
+                else if(isNumber(c)){
+                    return new Token(T.INT, this.readNumber(c))
                 }
                 else{
-                    return new Token(T.ILLEGAL, this.c)
+                    return new Token(T.ILLEGAL, c)
                 }
         }
     }
 
 
     read(){
-        this.c = this.input[this.index] ?? 'EOF'
         this.index++
-
-        return this.c
+        return this.input[this.index-1] ?? 'EOF'
     }
 
 
@@ -104,10 +101,11 @@ class Lexer{
     }
 
 
-    readWhitespace(c){
+    skipWhitespace(c){
         while(isWhitespace(c)){
             c = this.read()
         }
+        return c
     }
 
 
