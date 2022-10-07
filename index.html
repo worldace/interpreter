@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <title>interpreter</title>
 </head>
-<body>
+<body onkeydown="event.code === 'Enter' && event.ctrlKey && $button.click()">
 
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
 let a = 10 * (10 + (5 - 5)) / 2
-let b = fn(n, m){ return n + 1 }
-let c = b(a, 0)
+let b = fn(n, m){ return n + m }
+let c = b(a, 1)
 let d = [{"cat":"neko"}]
-if(c > 100){ print("100 over") }
+if(c > 51){ print("51 over") }
 else{
-    if(c > 50){ print(d[0]["cat"]) }
-    else{ print("50 less") }
+    if(c == 51){ fn(){ print(d[0]["cat"]) }() }
+    else{ print("51 under") }
 }
 </textarea><br>
 <button id="$button">実行 (Ctrl+Enter)</button><br>
@@ -37,27 +37,7 @@ function interpreter(code){
     return Eval(program)
 }
 
-
-$button.onclick = function(event){
-    interpreter($textarea.value)
-}
-
-
-document.onkeydown = function(event){
-    if(event.code === 'Enter' && event.ctrlKey){
-        event.preventDefault()
-        $button.click()
-    }
-    else if(event.code === 'Tab'){
-        event.preventDefault()
-        /*
-        const before = $textarea.value.substring(0, $textarea.selectionStart)
-        const after  = $textarea.value.substring($textarea.selectionStart)
-        $textarea.value = `${before}    ${after}`
-        $textarea.setSelectionRange(before.length+4, before.length+4)
-        */
-    }
-}
+$button.onclick = () => interpreter($textarea.value)
 </script>
 
 
