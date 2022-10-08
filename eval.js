@@ -68,16 +68,14 @@ function evalLet(id, value, env){
 }
 
 
-function evalIf(ie, env){
-    const condition = Eval(ie.condition, env)
-
-    if (isTruthy(condition)) {
-        return Eval(ie.ifBlock, env)
+function evalIf(node, env){
+    if(isTruthy( Eval(node.condition, env).value )){
+        return Eval(node.ifBlock, env)
     }
-    else if (ie.elseBlock) {
-        return Eval(ie.elseBlock, env)
+    else if(node.elseBlock){
+        return Eval(node.elseBlock, env)
     }
-    else {
+    else{
         return new Null()
     }
 }
@@ -135,10 +133,10 @@ function evalInfix(operator, left, right){
         return new Boolean(left.value != right.value)
     }
     else if (left.type() == 'integer' && right.type() == 'integer') {
-        return evalIntegerInfixExpression(operator, left, right)
+        return evalCalc(operator, left, right)
     }
-    else if (left.type() == 'string' && right.type() == 'string') {
-        return evalStringInfixExpression(operator, left, right)
+    else if (operator == '+' && left.type() == 'string' && right.type() == 'string') {
+        return new String(left.value + right.value)
     }
     else if (left.type() != right.type()) {
         return new Error(`type mismatch: ${left.type()} ${operator} ${right.type()}`)
@@ -148,15 +146,7 @@ function evalInfix(operator, left, right){
 }
 
 
-function evalStringInfixExpression(operator, left, right){
-    if (operator !== '+') {
-        return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`)
-    }
-    return new String(left.value + right.value)
-}
-
-
-function evalIntegerInfixExpression(operator, left, right){
+function evalCalc(operator, left, right){
     switch(operator){
         case '+':
             return new Integer(left.value + right.value)
@@ -181,17 +171,16 @@ function evalIntegerInfixExpression(operator, left, right){
 
 
 function evalID(node, env){
-    const val = env.get(node.value)
-    const builtin = Functions[node.value]
+    const value = env.get(node.value)
 
-    if (!val && !builtin) {
+    if(value){
+        return value
+    }
+    else if(Functions[node.value]){
+        return Functions[node.value]
+    }
+    else{
         return new Error(`id not found: ` + node.value)
-    }
-    if (val){
-        return val
-    }
-    else if(builtin){
-        return builtin
     }
 }
 
@@ -229,24 +218,19 @@ function evalIndex(left, index){
     }
 
     if (left.type() == 'array' && index.type() == 'integer') {
-        return evalArrayIndexExpression(left, index)
+        const i   = index.value
+        const max = left.elements.length - 1
+        if(i < 0 || i > max){
+            return new Error(`index range error`)
+        }
+        return left.elements[i]
     }
-    else if (left.type() == 'hash' && index.type() == 'string') {
-        return evalHashKeyExpression(left, index)
+    else if(left.type() == 'hash' && index.type() == 'string'){
+        return left.map.get(index.value)
     }
-    else {
+    else{
         return new Error(`index operator not supported: ${left.type()}`)
     }
-}
-
-
-function evalArrayIndexExpression(array, index){
-    const idx = index.value
-    const max = array.elements.length - 1
-    if (idx < 0 || idx > max) {
-        return null
-    }
-    return array.elements[idx]
 }
 
 
@@ -266,11 +250,6 @@ function evalHash(node, env){
     }
 
     return new Hash(map)
-}
-
-
-function evalHashKeyExpression(hash, key){
-    return hash.map.get(key.value)
 }
 
 
@@ -315,9 +294,8 @@ function evalReturn(val){
 }
 
 
-
-function isTruthy(obj){
-    switch(obj.value){
+function isTruthy(value){
+    switch(value){
         case null:
             return false
         case false:
