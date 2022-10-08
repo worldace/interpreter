@@ -12,11 +12,12 @@ class Parser {
 
 
     next(type) {
-        if(type && this.after.type !== type){
-            throw `[ParseError]`
-        }
         this.token = this.after
         this.after = this.lexer.generate()
+
+        if(type && this.token.type !== type){
+            throw `[ParseError]`
+        }
     }
 
 
