@@ -1,43 +1,27 @@
-import { Functions } from './functions.js'
 import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Hash } from './object.js'
+import { Functions } from './functions.js'
 
 
-function Eval(node, env = new Environment(new Map)){
+
+function Eval(node, env = new Environment()){
     switch(node.constructor.name){
-        case 'Program':
-            return evalProgram(node, env)
-        case 'BlockStatement':
-            return evalBlockStatement(node, env)
-        case 'ExpressionStatement':
-            return Eval(node.expression, env)
-        case 'LetStatement':
-            return evalLetStatement(node.id.value, Eval(node.value, env), env)
-        case 'IfExpression':
-            return evalIfExpression(node, env)
-        case 'PrefixExpression':
-            return evalPrefixExpression(node.operator, Eval(node.right, env))
-        case 'InfixExpression':
-            return evalInfixExpression(node.operator, Eval(node.left, env), Eval(node.right, env))
-        case 'ID':
-            return evalID(node, env)
-        case 'StringLiteral':
-            return new String(node.value)
-        case 'IntegerLiteral':
-            return new Integer(node.value)
-        case 'Boolean':
-            return new Boolean(node.value)
-        case 'ArrayLiteral':
-            return evalArrayLiteral(evalListExpressions(node.elements, env))
-        case 'IndexExpression':
-            return evalIndexExpression(Eval(node.left, env), Eval(node.index, env))
-        case 'HashLiteral':
-            return evalHashLiteral(node, env)
-        case 'FunctionLiteral':
-            return new Function(node.parameters, node.body, env)
-        case 'ReturnStatement':
-            return evalReturnStatement(Eval(node.returnValue, env))
-        case 'CallExpression':
-            return evalFunction(Eval(node.fc, env), evalListExpressions(node.arguments, env))
+        case 'Program'             : return evalProgram(node, env)
+        case 'BlockStatement'      : return evalBlock(node, env)
+        case 'ExpressionStatement' : return Eval(node.expression, env)
+        case 'LetStatement'        : return evalLet(node.id.value, Eval(node.value, env), env)
+        case 'IfExpression'        : return evalIf(node, env)
+        case 'PrefixExpression'    : return evalPrefix(node.operator, Eval(node.right, env))
+        case 'InfixExpression'     : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
+        case 'ID'                  : return evalID(node, env)
+        case 'StringLiteral'       : return new String(node.value)
+        case 'IntegerLiteral'      : return new Integer(node.value)
+        case 'Boolean'             : return new Boolean(node.value)
+        case 'ArrayLiteral'        : return evalArray(evalList(node.elements, env))
+        case 'IndexExpression'     : return evalIndex(Eval(node.left, env), Eval(node.index, env))
+        case 'HashLiteral'         : return evalHash(node, env)
+        case 'FunctionLiteral'     : return new Function(node.parameters, node.body, env)
+        case 'ReturnStatement'     : return evalReturn(Eval(node.returnValue, env))
+        case 'CallExpression'      : return evalFunction(Eval(node.fc, env), evalList(node.arguments, env))
     }
 }
 
@@ -61,12 +45,12 @@ function evalProgram(program, env){
 }
 
 
-function evalBlockStatement(block, env){
+function evalBlock(block, env){
     let result
 
     for (const v of block.statements){
         result = Eval(v, env)
-        if (result?.type() == 'return' || result?.type() == 'error') {
+        if (result?.type() === 'return' || result?.type() === 'error') {
             return result
         }
     }
@@ -75,7 +59,7 @@ function evalBlockStatement(block, env){
 }
 
 
-function evalLetStatement(id, value, env){
+function evalLet(id, value, env){
     if (isError(value)) {
         return value
     }
@@ -84,7 +68,7 @@ function evalLetStatement(id, value, env){
 }
 
 
-function evalIfExpression(ie, env){
+function evalIf(ie, env){
     const condition = Eval(ie.condition, env)
 
     if (isTruthy(condition)) {
@@ -99,7 +83,7 @@ function evalIfExpression(ie, env){
 }
 
 
-function evalPrefixExpression(operator, right){
+function evalPrefix(operator, right){
     if (isError(right)) {
         return right
     }
@@ -128,7 +112,7 @@ function evalBangOperatorExpression(right){
 
 
 function evalMinusOperatorExpression(right){
-    if (right.type() != 'integer') {
+    if (right.type() !== 'integer') {
         return new Error(`unknown operator: -${right.type()}`)
     }
 
@@ -136,7 +120,7 @@ function evalMinusOperatorExpression(right){
 }
 
 
-function evalInfixExpression(operator, left, right){
+function evalInfix(operator, left, right){
     if (isError(left)) {
         return left
     }
@@ -165,7 +149,7 @@ function evalInfixExpression(operator, left, right){
 
 
 function evalStringInfixExpression(operator, left, right){
-    if (operator != '+') {
+    if (operator !== '+') {
         return new Error(`unknown operator: ${left.type()} ${operator} ${right.type()}`)
     }
     return new String(left.value + right.value)
@@ -212,7 +196,7 @@ function evalID(node, env){
 }
 
 
-function evalArrayLiteral(elements){
+function evalArray(elements){
     if (elements.length == 1 && isError(elements[0])) {
         return elements[0]
     }
@@ -221,7 +205,7 @@ function evalArrayLiteral(elements){
 }
 
 
-function evalListExpressions(exps, env){
+function evalList(exps, env){
     let result = []
 
     for (const v of exps){
@@ -236,7 +220,7 @@ function evalListExpressions(exps, env){
 }
 
 
-function evalIndexExpression(left, index){
+function evalIndex(left, index){
     if (isError(left)) {
         return left
     }
@@ -266,7 +250,7 @@ function evalArrayIndexExpression(array, index){
 }
 
 
-function evalHashLiteral(node, env){
+function evalHash(node, env){
     const map = new Map()
 
     for (const [k, v] of node.map){
@@ -322,7 +306,7 @@ function evalFunction(fn, args){
 }
 
 
-function evalReturnStatement(val){
+function evalReturn(val){
     if (isError(val)) {
         return val
     }
@@ -346,14 +330,14 @@ function isTruthy(obj){
 
 function isError(obj){
     if (obj != null) {
-        return obj.type() == 'error'
+        return obj.type() === 'error'
     }
     return false
 }
 
 
 class Environment{
-    constructor(store, outer = null){
+    constructor(store = new Map, outer = null){
         this.store = store
         this.outer = outer
     }
