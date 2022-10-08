@@ -74,8 +74,8 @@ class Array {
     }
 
     inspect() {
-        let out = []
-        let elements = []
+        const out = []
+        const elements = []
         for (const e of this.elements){
             elements.push(e.inspect())
         }
@@ -99,13 +99,13 @@ class Hash {
     }
 
     inspect() {
-        let out = []
-        let pairs = []
+        const out = []
+        const pairs = []
         for (const [key, value] of this.pairs){
             pairs.push(key.inspect() + ':' + value.inspect())
         }
         out.push('{')
-        out.push(pairs.join(''))
+        out.push(pairs.join(','))
         out.push('}')
         return out.join('')
     }
@@ -128,8 +128,8 @@ class Function {
     }
 
     inspect() {
-        let out = []
-        let params = []
+        const out = []
+        const params = []
         for (const p of this.parameters){
             params.push(p)
         }

@@ -7,14 +7,14 @@
 <body onkeydown="event.code === 'Enter' && event.ctrlKey && $button.click()">
 
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
-let a = 10 * (10 + (5 - 5)) / 2
+let a = 10 * (10 + (5 - 5)) / 2 - 1
 let b = fn(n, m){ return n + m }
 let c = b(a, 1)
 let d = [{"cat":"neko"}]
-if(c > 51){ print("51 over") }
+if(c > 50){ print("50 over") }
 else{
-    if(c == 51){ fn(){ print(d[0]["cat"]) }() }
-    else{ print("51 under") }
+    if(c == 50){ fn(){ print(d[0]["cat"]) }() }
+    else{ print("50 under") }
 }
 </textarea><br>
 <button id="$button">実行 (Ctrl+Enter)</button><br>

@@ -87,14 +87,11 @@ function evalLetStatement(id, value, env){
 function evalIfExpression(ie, env){
     const condition = Eval(ie.condition, env)
 
-    if (isError(condition)) {
-        return condition
-    }
     if (isTruthy(condition)) {
-        return Eval(ie.consequence, env)
+        return Eval(ie.ifBlock, env)
     }
-    else if (ie.alternative != null) {
-        return Eval(ie.alternative, env)
+    else if (ie.elseBlock) {
+        return Eval(ie.elseBlock, env)
     }
     else {
         return new Null()

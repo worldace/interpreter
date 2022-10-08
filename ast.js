@@ -93,8 +93,8 @@ class Boolean {
 class IfExpression {
     token
     condition
-    consequence
-    alternative
+    ifBlock
+    elseBlock
     constructor(token){
         this.token = token
     }
@@ -105,6 +105,7 @@ class BlockStatement {
     statements
     constructor(token){
         this.token = token
+        this.statements = []
     }
 }
 
