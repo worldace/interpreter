@@ -6,33 +6,69 @@ class Program {
     }
 }
 
-class LetStatement {
+class ID {
     token
-    id
     value
-    constructor(token){
+    constructor(token, value){
         this.token = token
+        this.value = value
     }
 }
 
-class ReturnStatement {
+class String値 {
     token
-    returnValue
-    constructor(token){
-        this.token = token
-    }
-}
-
-class ExpressionStatement {
-    token
-    expression
     value
+    constructor(token, value){
+        this.token = token
+        this.value = value
+    }
+}
+
+class Integer値 {
+    token
+    value
+    constructor(token, value){
+        this.token = token
+        this.value = value
+    }
+}
+
+class Boolean値 {
+    token
+    value
+    constructor(token, value){
+        this.token = token
+        this.value = value
+    }
+}
+
+class Array値 {
+    token
+    elements
     constructor(token){
         this.token = token
     }
 }
 
-class PrefixExpression {
+class Hash値 {
+    token
+    map
+    constructor(token){
+        this.token = token
+        this.map = new Map
+    }
+}
+
+class Function値 {
+    token
+    parameters
+    body
+    constructor(token){
+        this.token = token
+    }
+}
+
+class Prefix式 {
     token
     operator
     right
@@ -42,7 +78,7 @@ class PrefixExpression {
     }
 }
 
-class InfixExpression {
+class Infix式 {
     token
     operator
     left
@@ -54,89 +90,7 @@ class InfixExpression {
     }
 }
 
-class ID {
-    token
-    value
-    constructor(token, value){
-        this.token = token
-        this.value = value
-    }
-}
-
-class StringLiteral {
-    token
-    value
-    constructor(token, value){
-        this.token = token
-        this.value = value
-    }
-}
-
-class IntegerLiteral {
-    token
-    value
-    constructor(token, value){
-        this.token = token
-        this.value = value
-    }
-}
-
-class Boolean {
-    token
-    value
-    constructor(token, value){
-        this.token = token
-        this.value = value
-    }
-}
-
-class IfExpression {
-    token
-    condition
-    ifBlock
-    elseBlock
-    constructor(token){
-        this.token = token
-    }
-}
-
-class BlockStatement {
-    token
-    statements
-    constructor(token){
-        this.token = token
-        this.statements = []
-    }
-}
-
-class FunctionLiteral {
-    token
-    parameters
-    body
-    constructor(token){
-        this.token = token
-    }
-}
-
-class CallExpression {
-    token
-    fc
-    arguments
-    constructor(token, fc){
-        this.token = token
-        this.fc = fc
-    }
-}
-
-class ArrayLiteral {
-    token
-    elements
-    constructor(token){
-        this.token = token
-    }
-}
-
-class IndexExpression {
+class Index式 {
     token
     left
     index
@@ -146,14 +100,61 @@ class IndexExpression {
     }
 }
 
-class HashLiteral {
+class Call式 {
     token
-    map
+    fc
+    arguments
+    constructor(token, fc){
+        this.token = token
+        this.fc = fc
+    }
+}
+
+class If式 {
+    token
+    condition
+    ifBlock
+    elseBlock
     constructor(token){
         this.token = token
-        this.map = new Map
+    }
+}
+
+class 式文 {
+    token
+    expression
+    value
+    constructor(token){
+        this.token = token
+    }
+}
+
+class Block文 {
+    token
+    statements
+    constructor(token){
+        this.token = token
+        this.statements = []
+    }
+}
+
+class Let文 {
+    token
+    id
+    value
+    constructor(token){
+        this.token = token
+    }
+}
+
+class Return文 {
+    token
+    returnValue
+    constructor(token){
+        this.token = token
     }
 }
 
 
-export {Program, LetStatement, ReturnStatement, ExpressionStatement, PrefixExpression, InfixExpression, ID, StringLiteral, IntegerLiteral, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, ArrayLiteral, IndexExpression, HashLiteral}
+
+export {Program, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文}

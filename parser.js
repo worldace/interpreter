@@ -1,5 +1,5 @@
 import { T } from './token.js'
-import { Program, LetStatement, ID, ReturnStatement, ExpressionStatement, IntegerLiteral, PrefixExpression, InfixExpression, Boolean, IfExpression, BlockStatement, FunctionLiteral, CallExpression, StringLiteral, ArrayLiteral, IndexExpression, HashLiteral } from './ast.js'
+import { Program, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文} from './ast.js'
 
 
 class Parser {
@@ -44,8 +44,33 @@ class Parser {
     }
 
 
+    parseExpressionStatement() {
+        const node = new 式文(this.token)
+        node.expression = this.parseExpression()
+
+        if (this.after.type === T.SEMICOLON) {
+            this.next()
+        }
+
+        return node
+    }
+
+
+    parseBlock(token) {
+        const node = new Block文(token)
+        this.next()
+
+        while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
+            node.statements.push(this.parseStatement())
+            this.next()
+        }
+
+        return node
+    }
+
+
     parseLet(){ // LET ID = exp;
-        const node = new LetStatement(this.token)
+        const node = new Let文(this.token)
 
         this.next(T.ID)
         node.id = new ID(this.token, this.token.literal)
@@ -62,7 +87,7 @@ class Parser {
 
 
     parseReturn() { // return exp;
-        const node = new ReturnStatement(this.token)
+        const node = new Return文(this.token)
         this.next()
         node.returnValue = this.parseExpression()
 
@@ -74,20 +99,8 @@ class Parser {
     }
 
 
-    parseExpressionStatement() {
-        const node = new ExpressionStatement(this.token)
-        node.expression = this.parseExpression()
-
-        if (this.after.type === T.SEMICOLON) {
-            this.next()
-        }
-
-        return node
-    }
-
-
     parsePrefix(token) {
-        const node = new PrefixExpression(token, token.literal)
+        const node = new Prefix式(token, token.literal)
         this.next()
         node.right = this.parseExpression(6)
 
@@ -96,7 +109,7 @@ class Parser {
 
 
     parseInfix(token, left) {
-        const node = new InfixExpression(token, token.literal, left)
+        const node = new Infix式(token, token.literal, left)
         const priority = getPriority(this.token.type)
         this.next()
         node.right = this.parseExpression(priority)
@@ -105,28 +118,26 @@ class Parser {
     }
 
 
-    parseID(token) {
-        return new ID(token, token.literal)
+    parseIndex(token, left) { // [ index ]
+        const node = new Index式(this.token, left)
+        this.next()
+        node.index = this.parseExpression()
+        this.next(T.RBRACKET)
+
+        return node
     }
 
 
-    parseString(token) {
-        return new StringLiteral(token, token.literal)
-    }
+    parseCall(token, fc) { // a ( b , c )
+        const node = new Call式(token, fc)
+        node.arguments = this.parseList(T.RPAREN)
 
-
-    parseInteger(token) {
-        return new IntegerLiteral(token, Number(token.literal))
-    }
-
-
-    parseBoolean(token) {
-        return new Boolean(token, this.token.type === T.TRUE)
+        return node
     }
 
 
     parseIf(token) { // if ( condition ) { block } else { block }
-        const node = new IfExpression(token)
+        const node = new If式(token)
 
         this.next(T.LPAREN)
         this.next()
@@ -145,59 +156,36 @@ class Parser {
     }
 
 
-    parseBlock(token) {
-        const node = new BlockStatement(token)
-        this.next()
-
-        while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
-            node.statements.push(this.parseStatement())
-            this.next()
-        }
-
-        return node
+    parseID(token) {
+        return new ID(token, token.literal)
     }
 
 
-    parseFunction(token) { // fn ( arguments ) { block }
-        const node = new FunctionLiteral(token)
-
-        this.next(T.LPAREN)
-        node.parameters = this.parseArguments()
-        this.next(T.LBRACE)
-        node.body = this.parseBlock(token)
-
-        return node
+    parseString(token) {
+        return new String値(token, token.literal)
     }
 
 
-    parseCall(token, fc) { // a ( b , c )
-        const node = new CallExpression(token, fc)
-        node.arguments = this.parseList(T.RPAREN)
+    parseInteger(token) {
+        return new Integer値(token, Number(token.literal))
+    }
 
-        return node
+
+    parseBoolean(token) {
+        return new Boolean値(token, this.token.type === T.TRUE)
     }
 
 
     parseArray() { // [ exp , exp ]
-        const node = new ArrayLiteral(this.token)
+        const node = new Array値(this.token)
         node.elements = this.parseList(T.RBRACKET)
 
         return node
     }
 
 
-    parseIndex(token, left) { // [ index ]
-        const node = new IndexExpression(this.token, left)
-        this.next()
-        node.index = this.parseExpression()
-        this.next(T.RBRACKET)
-
-        return node
-    }
-
-
     parseHash() { // { " key " : " value " ,  " key " : " value "  }
-        const node = new HashLiteral(this.token)
+        const node = new Hash値(this.token)
 
         while(this.after.type !== T.RBRACE){
             this.next()
@@ -212,6 +200,18 @@ class Parser {
         }
 
         this.next(T.RBRACE)
+
+        return node
+    }
+
+
+    parseFunction(token) { // fn ( arguments ) { block }
+        const node = new Function値(token)
+
+        this.next(T.LPAREN)
+        node.parameters = this.parseArguments()
+        this.next(T.LBRACE)
+        node.body = this.parseBlock(token)
 
         return node
     }
