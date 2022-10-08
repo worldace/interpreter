@@ -16,7 +16,7 @@ function Eval(node, env = new Environment()){
         case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
         case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
         case 'Index式'    : return evalIndex(Eval(node.left, env), Eval(node.index, env))
-        case 'Call式'     : return evalFunction(Eval(node.fc, env), evalList(node.arguments, env))
+        case 'Call式'     : return evalCall(Eval(node.fc, env), evalList(node.arguments, env))
         case 'If式'       : return evalIf(node, env)
         case '式文'       : return Eval(node.expression, env)
         case 'Block文'    : return evalBlock(node, env)
@@ -45,39 +45,46 @@ function evalProgram(program, env){
 }
 
 
-function evalBlock(block, env){
-    let result
+function evalID(node, env){
+    const value = env.get(node.value)
 
-    for (const v of block.statements){
-        result = Eval(v, env)
-        if (result?.type() === 'return' || result?.type() === 'error') {
-            return result
-        }
-    }
-
-    return result
-}
-
-
-function evalLet(id, value, env){
-    if (isError(value)) {
+    if(value){
         return value
     }
-
-    return env.set(id, value)
+    else if(Functions[node.value]){
+        return Functions[node.value]
+    }
+    else{
+        return new Error(`id not found: ` + node.value)
+    }
 }
 
 
-function evalIf(node, env){
-    if(isTruthy( Eval(node.condition, env).value )){
-        return Eval(node.ifBlock, env)
+function evalArray(elements){
+    if (elements.length == 1 && isError(elements[0])) {
+        return elements[0]
     }
-    else if(node.elseBlock){
-        return Eval(node.elseBlock, env)
+
+    return new Array(elements)
+}
+
+
+function evalHash(node, env){
+    const map = new Map()
+
+    for (const [k, v] of node.map){
+        const key = Eval(k, env)
+        if (isError(key)) {
+            return key
+        }
+        const value = Eval(v, env)
+        if (isError(value)) {
+            return value
+        }
+        map.set(key.value, value)
     }
-    else{
-        return new Null()
-    }
+
+    return new Hash(map)
 }
 
 
@@ -86,59 +93,46 @@ function evalPrefix(operator, right){
         return right
     }
 
-    switch(operator){
-        case '!':
-            return evalBangOperatorExpression(right)
-        case '-':
-            return evalMinusOperatorExpression(right)
-        default:
-            return new Error(`unknown operator: ${operator}${right.type()}`)
+    if(operator == '!'){
+        switch(right.value){
+            case false:
+                return new Boolean(true)
+            case null:
+                return new Boolean(true)
+            default:
+                return new Boolean(false)
+        }
     }
-}
-
-
-function evalBangOperatorExpression(right){
-    switch(right.value){
-        case false:
-            return new Boolean(true)
-        case null:
-            return new Boolean(true)
-        default:
-            return new Boolean(false)
+    else if(operator == '-' && right.type() == 'integer'){
+        return new Integer(-right.value)
     }
-}
-
-
-function evalMinusOperatorExpression(right){
-    if (right.type() !== 'integer') {
-        return new Error(`unknown operator: -${right.type()}`)
+    else{
+        return new Error(`unknown operator: ${operator}${right.type()}`)
     }
-
-    return new Integer(-right.value)
 }
 
 
 function evalInfix(operator, left, right){
-    if (isError(left)) {
+    if(isError(left)){
         return left
     }
-    if (isError(right)) {
+    if(isError(right)){
         return right
     }
 
-    if (operator == '==') {
+    if(operator == '=='){
         return new Boolean(left.value == right.value)
     }
-    else if (operator == '!=') {
+    else if(operator == '!='){
         return new Boolean(left.value != right.value)
     }
-    else if (left.type() == 'integer' && right.type() == 'integer') {
+    else if(left.type() == 'integer' && right.type() == 'integer'){
         return evalCalc(operator, left, right)
     }
-    else if (operator == '+' && left.type() == 'string' && right.type() == 'string') {
+    else if(operator == '+' && left.type() == 'string' && right.type() == 'string'){
         return new String(left.value + right.value)
     }
-    else if (left.type() != right.type()) {
+    else if(left.type() != right.type()){
         return new Error(`type mismatch: ${left.type()} ${operator} ${right.type()}`)
     }
 
@@ -170,54 +164,15 @@ function evalCalc(operator, left, right){
 }
 
 
-function evalID(node, env){
-    const value = env.get(node.value)
-
-    if(value){
-        return value
-    }
-    else if(Functions[node.value]){
-        return Functions[node.value]
-    }
-    else{
-        return new Error(`id not found: ` + node.value)
-    }
-}
-
-
-function evalArray(elements){
-    if (elements.length == 1 && isError(elements[0])) {
-        return elements[0]
-    }
-
-    return new Array(elements)
-}
-
-
-function evalList(exps, env){
-    let result = []
-
-    for (const v of exps){
-        const evaluated = Eval(v, env)
-        if (isError(evaluated)) {
-            return evaluated
-        }
-        result.push(evaluated)
-    }
-
-    return result
-}
-
-
 function evalIndex(left, index){
-    if (isError(left)) {
+    if(isError(left)){
         return left
     }
-    if (isError(index)) {
+    if(isError(index)){
         return index
     }
 
-    if (left.type() == 'array' && index.type() == 'integer') {
+    if(left.type() == 'array' && index.type() == 'integer'){
         const i   = index.value
         const max = left.elements.length - 1
         if(i < 0 || i > max){
@@ -234,30 +189,11 @@ function evalIndex(left, index){
 }
 
 
-function evalHash(node, env){
-    const map = new Map()
-
-    for (const [k, v] of node.map){
-        const key = Eval(k, env)
-        if (isError(key)) {
-            return key
-        }
-        const value = Eval(v, env)
-        if (isError(value)) {
-            return value
-        }
-        map.set(key.value, value)
-    }
-
-    return new Hash(map)
-}
-
-
-function evalFunction(fn, args){
+function evalCall(fn, args){
     if (isError(fn)) {
         return fn
     }
-    if (args.length == 1 && isError(args[0])) {
+    if(args.length == 1 && isError(args[0])){
         return args[0]
     }
 
@@ -270,7 +206,7 @@ function evalFunction(fn, args){
 
         const result = Eval(fn.body, env)
 
-        if (result.constructor.name == 'ReturnValue') {
+        if(result.constructor.name == 'ReturnValue'){
             return result.value
         }
 
@@ -285,12 +221,63 @@ function evalFunction(fn, args){
 }
 
 
+function evalIf(node, env){
+    if(isTruthy( Eval(node.condition, env).value )){
+        return Eval(node.ifBlock, env)
+    }
+    else if(node.elseBlock){
+        return Eval(node.elseBlock, env)
+    }
+    else{
+        return new Null()
+    }
+}
+
+
+function evalBlock(block, env){
+    let result
+
+    for(const v of block.statements){
+        result = Eval(v, env)
+        if(result?.type() === 'return' || result?.type() === 'error'){
+            return result
+        }
+    }
+
+    return result
+}
+
+
+function evalLet(id, value, env){
+    if(isError(value)){
+        return value
+    }
+
+    return env.set(id, value)
+}
+
+
 function evalReturn(val){
-    if (isError(val)) {
+    if(isError(val)){
         return val
     }
 
     return new ReturnValue(val)
+}
+
+
+function evalList(exps, env){
+    let result = []
+
+    for(const v of exps){
+        const evaluated = Eval(v, env)
+        if(isError(evaluated)){
+            return evaluated
+        }
+        result.push(evaluated)
+    }
+
+    return result
 }
 
 
