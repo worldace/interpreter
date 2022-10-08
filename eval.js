@@ -1,4 +1,4 @@
-import { Integer, Boolean, Null, ReturnValue, Error, Function, String, Array, Hash } from './object.js'
+import { Integer, Boolean, Null, ReturnValue, Function, String, Array, Hash } from './object.js'
 import { Functions } from './functions.js'
 
 
