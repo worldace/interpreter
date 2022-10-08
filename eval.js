@@ -21,7 +21,7 @@ function Eval(node, env = new Environment()){
         case '式文'       : return Eval(node.expression, env)
         case 'Block文'    : return evalBlock(node, env)
         case 'Let文'      : return evalLet(node.id.value, Eval(node.value, env), env)
-        case 'Return文'   : return evalReturn(Eval(node.returnValue, env))
+        case 'Return文'   : return evalReturn(Eval(node.value, env))
     }
 }
 

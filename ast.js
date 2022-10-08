@@ -149,7 +149,7 @@ class Let文 {
 
 class Return文 {
     token
-    returnValue
+    value
     constructor(token){
         this.token = token
     }

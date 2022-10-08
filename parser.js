@@ -89,7 +89,7 @@ class Parser {
     parseReturn() { // return exp;
         const node = new Return文(this.token)
         this.next()
-        node.returnValue = this.parseExpression()
+        node.value = this.parseExpression()
 
         if (this.after.type === T.SEMICOLON) {
             this.next()
