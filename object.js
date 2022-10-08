@@ -74,15 +74,8 @@ class Array {
     }
 
     inspect() {
-        const out = []
-        const elements = []
-        for (const e of this.elements){
-            elements.push(e.inspect())
-        }
-        out.push('[')
-        out.push(elements.join(','))
-        out.push(']')
-        return out.join('')
+        const list = this.elements.map(v => v.inspect())
+        return `[${list.join(', ')}]`
     }
 }
 
@@ -99,15 +92,8 @@ class Hash {
     }
 
     inspect() {
-        const out = []
-        const pairs = []
-        for (const [key, value] of this.pairs){
-            pairs.push(key.inspect() + ':' + value.inspect())
-        }
-        out.push('{')
-        out.push(pairs.join(','))
-        out.push('}')
-        return out.join('')
+        const list = this.pairs.map((v,k) => k.inspect() + ':' + v.inspect())
+        return `{${list.join(', ')}}`
     }
 }
 
@@ -128,18 +114,7 @@ class Function {
     }
 
     inspect() {
-        const out = []
-        const params = []
-        for (const p of this.parameters){
-            params.push(p)
-        }
-        out.push('fn')
-        out.push('(')
-        out.push(params.join(', '))
-        out.push(') {\n')
-        out.push(this.body)
-        out.push('\n}')
-        return out.join('')
+        return `fn(${this.parameters.join(', ')}){\n${this.body}\n}`
     }
 }
 

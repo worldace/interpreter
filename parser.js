@@ -205,8 +205,7 @@ class Parser {
             const key = this.parseExpression()
             this.next(T.COLON)
             this.next()
-            const value = this.parseExpression()
-            node.pairs.set(key, value)
+            node.pairs.set(key, this.parseExpression())
 
             if (this.after.type !== T.RBRACE && this.next(T.COMMA)) {
                 throw `[parse error]`
