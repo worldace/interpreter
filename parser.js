@@ -198,14 +198,13 @@ class Parser {
 
     parseHash() { // { " key " : " value " ,  " key " : " value "  }
         const node = new HashLiteral(this.token)
-        node.pairs = new Map()
 
         while(this.after.type !== T.RBRACE){
             this.next()
             const key = this.parseExpression()
             this.next(T.COLON)
             this.next()
-            node.pairs.set(key, this.parseExpression())
+            node.map.set(key, this.parseExpression())
 
             if (this.after.type !== T.RBRACE && this.next(T.COMMA)) {
                 throw `[parse error]`

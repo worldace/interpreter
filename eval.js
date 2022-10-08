@@ -267,9 +267,9 @@ function evalArrayIndexExpression(array, index){
 
 
 function evalHashLiteral(node, env){
-    const pairs = new Map()
+    const map = new Map()
 
-    for (const [k, v] of node.pairs){
+    for (const [k, v] of node.map){
         const key = Eval(k, env)
         if (isError(key)) {
             return key
@@ -278,15 +278,15 @@ function evalHashLiteral(node, env){
         if (isError(value)) {
             return value
         }
-        pairs.set(key.value, value)
+        map.set(key.value, value)
     }
 
-    return new Hash(pairs)
+    return new Hash(map)
 }
 
 
 function evalHashKeyExpression(hash, key){
-    return hash.pairs.get(key.value)
+    return hash.map.get(key.value)
 }
 
 

@@ -81,10 +81,10 @@ class Array {
 
 
 class Hash {
-    pairs
+    map
 
-    constructor(pairs){
-        this.pairs = pairs
+    constructor(map){
+        this.map = map
     }
 
     type(){
@@ -92,7 +92,7 @@ class Hash {
     }
 
     inspect() {
-        const list = this.pairs.map((v,k) => k.inspect() + ':' + v.inspect())
+        const list = this.map.map((v,k) => k.inspect() + ':' + v.inspect())
         return `{${list.join(', ')}}`
     }
 }

@@ -148,9 +148,10 @@ class IndexExpression {
 
 class HashLiteral {
     token
-    pairs
+    map
     constructor(token){
         this.token = token
+        this.map = new Map
     }
 }
 
