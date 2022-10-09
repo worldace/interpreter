@@ -126,8 +126,9 @@ class 式文 {
     token
     expression
     value
-    constructor(token){
+    constructor(token, expression){
         this.token = token
+        this.expression = expression
     }
 }
 

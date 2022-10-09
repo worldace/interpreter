@@ -5,9 +5,9 @@ import { Program, ID, String値, Integer値, Boolean値, Array値, Hash値, Func
 class Parser {
 
     constructor(lexer){
-        this.lexer  = lexer
-        this.token  = this.lexer.generate()
-        this.after  = this.lexer.generate()
+        this.lexer = lexer
+        this.token = this.lexer.generate()
+        this.after = this.lexer.generate()
     }
 
 
@@ -76,8 +76,7 @@ class Parser {
 
 
     parseExpressionStatement() {
-        const node = new 式文(this.token)
-        node.expression = this.parseExpression()
+        const node = new 式文(this.token, this.parseExpression())
 
         if (this.after.type === T.SEMICOLON) {
             this.next()
@@ -97,6 +96,52 @@ class Parser {
         }
 
         return node
+    }
+
+
+    parseExpression(priority = 1) {
+        let left = this.prefixFn(this.token)
+
+        while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
+            this.next()
+            left = this.infixFn(this.token, left)
+        }
+
+        return left
+    }
+
+
+    prefixFn(token){
+        switch(token.type){
+            case T.ID       : return this.parseID(token)
+            case T.STRING   : return this.parseString(token)
+            case T.INT      : return this.parseInteger(token)
+            case T.BANG     : return this.parsePrefix(token)
+            case T.MINUS    : return this.parsePrefix(token)
+            case T.TRUE     : return this.parseBoolean(token)
+            case T.FALSE    : return this.parseBoolean(token)
+            case T.IF       : return this.parseIf(token)
+            case T.FUNCTION : return this.parseFunction(token)
+            case T.LPAREN   : return this.parseGroupe(token)
+            case T.LBRACKET : return this.parseArray(token)
+            case T.LBRACE   : return this.parseHash(token)
+        }
+    }
+
+
+    infixFn(token, left){
+        switch(token.type){
+            case T.PLUS     : return this.parseInfix(token, left)
+            case T.MINUS    : return this.parseInfix(token, left)
+            case T.ASTERISK : return this.parseInfix(token, left)
+            case T.SLASH    : return this.parseInfix(token, left)
+            case T.EQ       : return this.parseInfix(token, left)
+            case T.NOTEQ    : return this.parseInfix(token, left)
+            case T.LT       : return this.parseInfix(token, left)
+            case T.GT       : return this.parseInfix(token, left)
+            case T.LBRACKET : return this.parseIndex(token, left)
+            case T.LPAREN   : return this.parseCall(token, left)
+        }
     }
 
 
@@ -265,54 +310,6 @@ class Parser {
 
         return list
     }
-
-
-    parseExpression(priority = 1) {
-        let left = this.prefixFn(this.token)
-
-        while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
-            this.next()
-            left = this.infixFn(this.token, left)
-        }
-
-        return left
-    }
-
-
-    prefixFn(token){
-        switch(token.type){
-            case T.ID       : return this.parseID(token)
-            case T.STRING   : return this.parseString(token)
-            case T.INT      : return this.parseInteger(token)
-            case T.BANG     : return this.parsePrefix(token)
-            case T.MINUS    : return this.parsePrefix(token)
-            case T.TRUE     : return this.parseBoolean(token)
-            case T.FALSE    : return this.parseBoolean(token)
-            case T.IF       : return this.parseIf(token)
-            case T.FUNCTION : return this.parseFunction(token)
-            case T.LPAREN   : return this.parseGroupe(token)
-            case T.LBRACKET : return this.parseArray(token)
-            case T.LBRACE   : return this.parseHash(token)
-        }
-    }
-
-
-    infixFn(token, left){
-        switch(token.type){
-            case T.PLUS     : return this.parseInfix(token, left)
-            case T.MINUS    : return this.parseInfix(token, left)
-            case T.ASTERISK : return this.parseInfix(token, left)
-            case T.SLASH    : return this.parseInfix(token, left)
-            case T.EQ       : return this.parseInfix(token, left)
-            case T.NOTEQ    : return this.parseInfix(token, left)
-            case T.LT       : return this.parseInfix(token, left)
-            case T.GT       : return this.parseInfix(token, left)
-            case T.LBRACKET : return this.parseIndex(token, left)
-            case T.LPAREN   : return this.parseCall(token, left)
-        }
-    }
-
-
 }
 
 
