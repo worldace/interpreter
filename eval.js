@@ -150,15 +150,15 @@ function evalIndex(left, index){
 }
 
 
-function evalCall(fn, args){
-    if(fn.constructor.name === 'Function'){
-        const env = new Environment(new Map(), fn.env)
+function evalCall(node, args){
+    if(node.constructor.name === 'Function'){
+        const env = new Environment(new Map(), node.env)
 
-        for(const [i,v] of fn.parameters.entries()){
+        for(const [i,v] of node.parameters.entries()){
             env.set(v.value, args[i])
         }
 
-        const result = Eval(fn.body, env)
+        const result = Eval(node.body, env)
 
         if(result.constructor.name == 'ReturnValue'){
             return result.value
@@ -166,11 +166,11 @@ function evalCall(fn, args){
 
         return result
     }
-    else if(fn.constructor.name === 'Builtin'){
-        return fn.fn(...args)
+    else if(node.constructor.name === 'Builtin'){
+        return node.fn(...args)
     }
     else{
-        throw `not a function: ${fn.type()}`
+        throw `not a function: ${node.type()}`
     }
 }
 
@@ -188,10 +188,10 @@ function evalIf(node, env){
 }
 
 
-function evalBlock(block, env){
+function evalBlock(node, env){
     let result
 
-    for(const v of block.statements){
+    for(const v of node.statements){
         result = Eval(v, env)
         if(result.type() == 'return'){
             return result
