@@ -130,10 +130,7 @@ class Parser {
 
 
     parseCall(token, id) { // a ( b , c )
-        const node = new Call式(token, id)
-        node.arguments = this.parseList(T.RPAREN)
-
-        return node
+        return new Call式(token, id, this.parseList(T.RPAREN))
     }
 
 
@@ -178,10 +175,7 @@ class Parser {
 
 
     parseArray() { // [ exp , exp ]
-        const node = new Array値(this.token)
-        node.elements = this.parseList(T.RBRACKET)
-
-        return node
+        return new Array値(this.token, this.parseList(T.RBRACKET))
     }
 
 
@@ -250,7 +244,7 @@ class Parser {
     }
 
 
-    parseList(end) {
+    parseList(end) { // ( exp , exp )
         let list = []
 
         if (this.after.type === end) {

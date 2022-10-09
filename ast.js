@@ -45,8 +45,9 @@ class Boolean値 {
 class Array値 {
     token
     elements
-    constructor(token){
+    constructor(token, elements){
         this.token = token
+        this.elements = elements
     }
 }
 
@@ -104,9 +105,10 @@ class Call式 {
     token
     id
     arguments
-    constructor(token, id){
+    constructor(token, id, args){
         this.token = token
         this.id = id
+        this.arguments = args
     }
 }
 
