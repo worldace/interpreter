@@ -226,16 +226,16 @@ class Environment{
     }
 
     get(key){
-        const obj = this.store.get(key)
-        if (!obj && this.outer != null) {
+        const value = this.store.get(key)
+        if (value === undefined && this.outer) {
             return this.outer.get(key)
         }
-        return obj
+        return value
     }
 
-    set(key, val){
-        this.store.set(key, val)
-        return val
+    set(key, value){
+        this.store.set(key, value)
+        return value
     }
 }
 
