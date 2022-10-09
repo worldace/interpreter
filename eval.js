@@ -11,7 +11,7 @@ function Eval(node, env = new Environment()){
         case 'Integer値'  : return new Integer(node.value)
         case 'Boolean値'  : return new Boolean(node.value)
         case 'Array値'    : return new Array( evalList(node.elements, env) )
-        case 'Hash値'     : return evalHash(node, env)
+        case 'Hash値'     : return new Hash( evalHash(node, env) )
         case 'Function値' : return new Function(node.parameters, node.body, env)
         case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
         case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
@@ -64,7 +64,7 @@ function evalHash(node, env){
         map.set(Eval(k, env).value, Eval(v, env))
     }
 
-    return new Hash(map)
+    return map
 }
 
 
