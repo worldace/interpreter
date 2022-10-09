@@ -30,14 +30,11 @@ function Eval(node, env = new Environment()){
 function evalProgram(program, env){
     let result
 
-    for (const statement of program.statements){
-        result = Eval(statement, env)
+    for (const v of program.statements){
+        result = Eval(v, env)
 
-        switch(result.constructor.name){
-            case 'ReturnValue':
-                return result.value
-            case 'Error':
-                return result
+        if(result.constructor.name == "ReturnValue"){
+            return result.value
         }
     }
 
@@ -198,7 +195,7 @@ function evalBlock(block, env){
 
     for(const v of block.statements){
         result = Eval(v, env)
-        if(result?.type() === 'return' || result?.type() === 'error'){
+        if(result.type() == 'return'){
             return result
         }
     }
