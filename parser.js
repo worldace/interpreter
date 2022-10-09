@@ -129,8 +129,8 @@ class Parser {
     }
 
 
-    parseCall(token, fc) { // a ( b , c )
-        const node = new Call式(token, fc)
+    parseCall(token, id) { // a ( b , c )
+        const node = new Call式(token, id)
         node.arguments = this.parseList(T.RPAREN)
 
         return node
@@ -210,7 +210,7 @@ class Parser {
         const node = new Function値(token)
 
         this.next(T.LPAREN)
-        node.parameters = this.parseArguments()
+        node.arguments = this.parseArguments()
         this.next(T.LBRACE)
         node.body = this.parseBlock(token)
 
@@ -230,7 +230,7 @@ class Parser {
     parseArguments() { // ( a , b )
         const args = []
 
-        if (this.after.type === T.RPAREN) {
+        if(this.after.type === T.RPAREN) {
             this.next()
             return args
         }

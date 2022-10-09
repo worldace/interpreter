@@ -99,12 +99,12 @@ class Hash {
 
 
 class Function {
-    parameters
+    arguments
     body
     env
 
-    constructor(parameters, body, env){
-        this.parameters = parameters
+    constructor(args, body, env){
+        this.arguments = args
         this.body = body
         this.env = env
     }
@@ -114,7 +114,7 @@ class Function {
     }
 
     inspect() {
-        return `fn(${this.parameters.join(', ')}){\n${this.body}\n}`
+        return `fn(${this.arguments.join(', ')}){\n${this.body}\n}`
     }
 }
 

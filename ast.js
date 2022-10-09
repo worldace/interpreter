@@ -61,7 +61,7 @@ class Hash値 {
 
 class Function値 {
     token
-    parameters
+    arguments
     body
     constructor(token){
         this.token = token
@@ -102,11 +102,11 @@ class Index式 {
 
 class Call式 {
     token
-    fc
+    id
     arguments
-    constructor(token, fc){
+    constructor(token, id){
         this.token = token
-        this.fc = fc
+        this.id = id
     }
 }
 

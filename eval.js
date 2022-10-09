@@ -12,11 +12,11 @@ function Eval(node, env = new Environment()){
         case 'Boolean値'  : return new Boolean(node.value)
         case 'Array値'    : return new Array( evalList(node.elements, env) )
         case 'Hash値'     : return new Hash( evalHash(node, env) )
-        case 'Function値' : return new Function(node.parameters, node.body, env)
+        case 'Function値' : return new Function(node.arguments, node.body, env)
         case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
         case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
         case 'Index式'    : return evalIndex(Eval(node.left, env), Eval(node.index, env))
-        case 'Call式'     : return evalCall(Eval(node.fc, env), evalList(node.arguments, env))
+        case 'Call式'     : return evalCall(Eval(node.id, env), evalList(node.arguments, env))
         case 'If式'       : return evalIf(node, env)
         case '式文'       : return Eval(node.expression, env)
         case 'Block文'    : return evalBlock(node, env)
@@ -154,7 +154,7 @@ function evalCall(node, args){
     if(node.constructor.name === 'Function'){
         const env = new Environment(new Map(), node.env)
 
-        for(const [i,v] of node.parameters.entries()){
+        for(const [i,v] of node.arguments.entries()){
             env.set(v.value, args[i])
         }
 
