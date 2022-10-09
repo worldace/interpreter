@@ -1,9 +1,9 @@
-import { Builtin, Array, Integer, Null, Error } from './object.js';
+import { Integer, Array, Null, Builtin } from './object.js'
 
 
 function len(...args){
     if (args.length != 1) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+        throw `wrong number of arguments. got=${args.length}, want=1`
     }
     switch(args[0].constructor.name){
         case 'String':
@@ -11,17 +11,17 @@ function len(...args){
         case 'Array':
             return new Integer(args[0].elements.length)
         default:
-            return new Error(`argument to \`len\` not supported, got ${args[0].type}`)
+            throw `argument to \`len\` not supported, got ${args[0].type}`
     }
 }
 
 
 function first(...args){
     if (args.length != 1) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+        throw`wrong number of arguments. got=${args.length}, want=1`
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`first\` must be ARRAY, got ${args[0].type}`)
+        throw `argument to \`first\` must be ARRAY, got ${args[0].type}`
     }
     if (args[0].elements.length > 0) {
         return args[0].elements[0]
@@ -33,10 +33,10 @@ function first(...args){
 
 function last(...args){
     if (args.length != 1) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+        throw `wrong number of arguments. got=${args.length}, want=1`
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`last\` must be ARRAY, got ${args[0].type}`)
+        throw `argument to \`last\` must be ARRAY, got ${args[0].type}`
     }
     const length = args[0].elements.length
 
@@ -50,10 +50,10 @@ function last(...args){
 
 function rest(...args){
     if (args.length != 1) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+        throw `wrong number of arguments. got=${args.length}, want=1`
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type}`)
+        throw `argument to \`rest\` must be ARRAY, got ${args[0].type}`
     }
     const length = args[0].elements.length
 
@@ -68,10 +68,10 @@ function rest(...args){
 
 function push(...args){
     if (args.length != 2) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=2`)
+        throw `wrong number of arguments. got=${args.length}, want=2`
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type}`)
+        throw `argument to \`rest\` must be ARRAY, got ${args[0].type}`
     }
 
     const length = args[0].elements.length
@@ -84,7 +84,7 @@ function push(...args){
 
 function print(...args){
     if (args.length != 1) {
-        return new Error(`wrong number of arguments. got=${args.length}, want=1`)
+        throw `wrong number of arguments. got=${args.length}, want=1`
     }
 
     $output.append(args[0]?.inspect(), document.createElement('br'))
