@@ -3,7 +3,7 @@ import { Functions } from './functions.js'
 
 
 
-function Eval(node, env = new Environment()){
+function Eval(node, env = new Environment){
     switch(node.constructor.name){
         case 'Program'    : return evalProgram(node, env)
         case 'ID'         : return evalID(node, env)
@@ -152,7 +152,7 @@ function evalIndex(left, index){
 
 function evalCall(node, args){
     if(node.constructor.name === 'Function'){
-        const env = new Environment(new Map(), node.env)
+        const env = new Environment(new Map, node.env)
 
         for(const [i,v] of node.arguments.entries()){
             env.set(v.value, args[i])
