@@ -45,31 +45,6 @@ class Parser {
     }
 
 
-    parseExpressionStatement() {
-        const node = new 式文(this.token)
-        node.expression = this.parseExpression()
-
-        if (this.after.type === T.SEMICOLON) {
-            this.next()
-        }
-
-        return node
-    }
-
-
-    parseBlock(token) {
-        const node = new Block文(token)
-        this.next()
-
-        while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
-            node.statements.push(this.parseStatement())
-            this.next()
-        }
-
-        return node
-    }
-
-
     parseLet(){ // LET ID = exp;
         const node = new Let文(this.token)
 
@@ -93,6 +68,31 @@ class Parser {
         node.value = this.parseExpression()
 
         if (this.after.type === T.SEMICOLON) {
+            this.next()
+        }
+
+        return node
+    }
+
+
+    parseExpressionStatement() {
+        const node = new 式文(this.token)
+        node.expression = this.parseExpression()
+
+        if (this.after.type === T.SEMICOLON) {
+            this.next()
+        }
+
+        return node
+    }
+
+
+    parseBlock(token) {
+        const node = new Block文(token)
+        this.next()
+
+        while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
+            node.statements.push(this.parseStatement())
             this.next()
         }
 
