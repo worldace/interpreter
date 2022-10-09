@@ -6,6 +6,15 @@ import { Functions } from './functions.js'
 function Eval(node, env = new Environment){
     switch(node.constructor.name){
         case 'Program'    : return evalProgram(node, env)
+        case 'Let文'      : return env.set(node.id.value, Eval(node.value, env))
+        case 'Return文'   : return new Return( Eval(node.value, env) )
+        case '式文'       : return Eval(node.expression, env)
+        case 'Block文'    : return evalBlock(node, env)
+        case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
+        case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
+        case 'Index式'    : return evalIndex(Eval(node.left, env), Eval(node.index, env))
+        case 'Call式'     : return evalCall(Eval(node.id, env), evalList(node.arguments, env))
+        case 'If式'       : return evalIf(node, env)
         case 'ID'         : return evalID(node, env)
         case 'String値'   : return new String(node.value)
         case 'Integer値'  : return new Integer(node.value)
@@ -13,15 +22,6 @@ function Eval(node, env = new Environment){
         case 'Array値'    : return new Array( evalList(node.elements, env) )
         case 'Hash値'     : return new Hash( evalHash(node, env) )
         case 'Function値' : return new Function(node.arguments, node.body, env)
-        case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
-        case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
-        case 'Index式'    : return evalIndex(Eval(node.left, env), Eval(node.index, env))
-        case 'Call式'     : return evalCall(Eval(node.id, env), evalList(node.arguments, env))
-        case 'If式'       : return evalIf(node, env)
-        case '式文'       : return Eval(node.expression, env)
-        case 'Block文'    : return evalBlock(node, env)
-        case 'Let文'      : return env.set(node.id.value, Eval(node.value, env))
-        case 'Return文'   : return new Return( Eval(node.value, env) )
     }
 }
 
@@ -42,29 +42,17 @@ function evalProgram(program, env){
 }
 
 
-function evalID(node, env){
-    const value = env.get(node.value)
+function evalBlock(node, env){
+    let result
 
-    if(value){
-        return value
-    }
-    else if(Functions[node.value]){
-        return Functions[node.value]
-    }
-    else{
-        throw `id not found: ${node.value}`
-    }
-}
-
-
-function evalHash(node, env){
-    const map = new Map()
-
-    for (const [k, v] of node.map){
-        map.set(Eval(k, env).value, Eval(v, env))
+    for(const v of node.statements){
+        result = Eval(v, env)
+        if(result.type == 'return'){
+            return result
+        }
     }
 
-    return map
+    return result
 }
 
 
@@ -188,18 +176,31 @@ function evalIf(node, env){
 }
 
 
-function evalBlock(node, env){
-    let result
+function evalID(node, env){
+    const value = env.get(node.value)
 
-    for(const v of node.statements){
-        result = Eval(v, env)
-        if(result.type == 'return'){
-            return result
-        }
+    if(value){
+        return value
+    }
+    else if(Functions[node.value]){
+        return Functions[node.value]
+    }
+    else{
+        throw `id not found: ${node.value}`
+    }
+}
+
+
+function evalHash(node, env){
+    const map = new Map()
+
+    for (const [k, v] of node.map){
+        map.set(Eval(k, env).value, Eval(v, env))
     }
 
-    return result
+    return map
 }
+
 
 
 function evalList(list, env){
