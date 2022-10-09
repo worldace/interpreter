@@ -136,12 +136,10 @@ function evalCalc(operator, left, right){
 
 function evalIndex(left, index){
     if(left.type() == 'array' && index.type() == 'integer'){
-        const i   = index.value
-        const max = left.elements.length - 1
-        if(i < 0 || i > max){
+        if(index.value < 0 || index.value > left.elements.length-1){
             throw `index error`
         }
-        return left.elements[i]
+        return left.elements[index.value]
     }
     else if(left.type() == 'hash' && index.type() == 'string'){
         return left.map.get(index.value)
