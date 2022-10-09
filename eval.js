@@ -1,4 +1,4 @@
-import { Integer, Boolean, Null, ReturnValue, Function, String, Array, Hash } from './object.js'
+import { Integer, Boolean, Null, Return, Function, String, Array, Hash } from './object.js'
 import { Functions } from './functions.js'
 
 
@@ -21,7 +21,7 @@ function Eval(node, env = new Environment()){
         case '式文'       : return Eval(node.expression, env)
         case 'Block文'    : return evalBlock(node, env)
         case 'Let文'      : return env.set(node.id.value, Eval(node.value, env))
-        case 'Return文'   : return new ReturnValue( Eval(node.value, env) )
+        case 'Return文'   : return new Return( Eval(node.value, env) )
     }
 }
 
@@ -33,7 +33,7 @@ function evalProgram(program, env){
     for (const v of program.statements){
         result = Eval(v, env)
 
-        if(result.constructor.name == "ReturnValue"){
+        if(result.constructor.name == "Return"){
             return result.value
         }
     }
@@ -160,7 +160,7 @@ function evalCall(node, args){
 
         const result = Eval(node.body, env)
 
-        if(result.constructor.name == 'ReturnValue'){
+        if(result.constructor.name == 'Return'){
             return result.value
         }
 

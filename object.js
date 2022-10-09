@@ -119,7 +119,7 @@ class Function {
 }
 
 
-class ReturnValue {
+class Return {
     value
 
     constructor(value){
@@ -171,4 +171,4 @@ class Error {
 
 
 
-export {String, Integer, Boolean, Null, Array, Hash, Function, ReturnValue, Builtin, Error}
+export {String, Integer, Boolean, Null, Array, Hash, Function, Return, Builtin, Error}
