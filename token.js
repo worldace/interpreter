@@ -34,17 +34,6 @@ T.ELSE      = 'ELSE'
 T.RETURN    = 'RETURN'
 
 
-const reserved = {
-    fn    : T.FUNCTION,
-    let   : T.LET,
-    true  : T.TRUE,
-    false : T.FALSE,
-    if    : T.IF,
-    else  : T.ELSE,
-    return: T.RETURN,
-}
-
-
 class Token{
     constructor(type, literal){
         this.type    = type
@@ -53,4 +42,4 @@ class Token{
 }
 
 
-export {T, Token, reserved}
+export {T, Token}

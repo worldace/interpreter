@@ -1,4 +1,4 @@
-import {T, Token, reserved} from './token.js'
+import {T, Token} from './token.js'
 
 
 class Lexer{
@@ -11,7 +11,7 @@ class Lexer{
 
     generate(){
         let c = this.read()
-        c = this.skipWhitespace(c)
+        c = this.skipWhiteSpace(c)
 
         switch(c){
             case ':': return new Token(T.COLON, ':')
@@ -56,7 +56,7 @@ class Lexer{
                     return new Token(T.INT, this.readNumber(c))
                 }
                 else{
-                    return new Token(T.ILLEGAL, c)
+                    throw `[LexerError] ${c}`
                 }
         }
     }
@@ -101,8 +101,8 @@ class Lexer{
     }
 
 
-    skipWhitespace(c){
-        while(isWhitespace(c)){
+    skipWhiteSpace(c){
+        while(isWhiteSpace(c)){
             c = this.read()
         }
         return c
@@ -135,8 +135,19 @@ function isNumber(c){
 }
 
 
-function isWhitespace(c){
+function isWhiteSpace(c){
     return [' ', '\t', '\r', '\n'].includes(c)
+}
+
+
+const reserved = {
+    true  : T.TRUE,
+    false : T.FALSE,
+    let   : T.LET,
+    if    : T.IF,
+    else  : T.ELSE,
+    fn    : T.FUNCTION,
+    return: T.RETURN,
 }
 
 

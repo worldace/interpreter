@@ -156,9 +156,8 @@ class Parser {
 
     parseInfix(token, left) {
         const node = new Infix式(token, token.literal, left)
-        const priority = getPriority(this.token.type)
         this.next()
-        node.right = this.parseExpression(priority)
+        node.right = this.parseExpression( getPriority(node.token.type) )
 
         return node
     }

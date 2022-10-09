@@ -209,14 +209,7 @@ function evalList(list, env){
 
 
 function isTruthy(value){
-    switch(value){
-        case null:
-            return false
-        case false:
-            return false
-        default:
-            return true
-    }
+    return value != null && value !== false
 }
 
 
