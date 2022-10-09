@@ -222,25 +222,25 @@ class Parser {
 
 
     parseArguments() { // ( a , b )
-        const args = []
+        const list = []
 
         if(this.after.type === T.RPAREN) {
             this.next()
-            return args
+            return list
         }
 
         this.next()
-        args.push(new ID(this.token, this.token.literal))
+        list.push(new ID(this.token, this.token.literal))
 
         while(this.after.type === T.COMMA){
             this.next()
             this.next()
-            args.push(new ID(this.token, this.token.literal))
+            list.push(new ID(this.token, this.token.literal))
         }
 
         this.next(T.RPAREN)
 
-        return args
+        return list
     }
 
 
