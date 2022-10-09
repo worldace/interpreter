@@ -11,7 +11,7 @@ function len(...args){
         case 'Array':
             return new Integer(args[0].elements.length)
         default:
-            return new Error(`argument to \`len\` not supported, got ${args[0].type()}`)
+            return new Error(`argument to \`len\` not supported, got ${args[0].type}`)
     }
 }
 
@@ -21,7 +21,7 @@ function first(...args){
         return new Error(`wrong number of arguments. got=${args.length}, want=1`)
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`first\` must be ARRAY, got ${args[0].type()}`)
+        return new Error(`argument to \`first\` must be ARRAY, got ${args[0].type}`)
     }
     if (args[0].elements.length > 0) {
         return args[0].elements[0]
@@ -36,7 +36,7 @@ function last(...args){
         return new Error(`wrong number of arguments. got=${args.length}, want=1`)
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`last\` must be ARRAY, got ${args[0].type()}`)
+        return new Error(`argument to \`last\` must be ARRAY, got ${args[0].type}`)
     }
     const length = args[0].elements.length
 
@@ -53,7 +53,7 @@ function rest(...args){
         return new Error(`wrong number of arguments. got=${args.length}, want=1`)
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type()}`)
+        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type}`)
     }
     const length = args[0].elements.length
 
@@ -71,7 +71,7 @@ function push(...args){
         return new Error(`wrong number of arguments. got=${args.length}, want=2`)
     }
     if (args[0].constructor.name != 'Array') {
-        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type()}`)
+        return new Error(`argument to \`rest\` must be ARRAY, got ${args[0].type}`)
     }
 
     const length = args[0].elements.length

@@ -1,13 +1,10 @@
 
 class String {
+    type = 'string'
     value
 
     constructor(value){
         this.value = value
-    }
-
-    type() {
-        return 'string'
     }
 
     inspect() {
@@ -17,14 +14,11 @@ class String {
 
 
 class Integer {
+    type = 'integer'
     value
 
     constructor(value){
         this.value = value
-    }
-
-    type() {
-        return 'integer'
     }
 
     inspect() {
@@ -34,14 +28,11 @@ class Integer {
 
 
 class Boolean {
+    type = 'boolean'
     value
 
     constructor(value){
         this.value = value
-    }
-
-    type() {
-        return 'boolean'
     }
 
     inspect() {
@@ -51,10 +42,7 @@ class Boolean {
 
 
 class Null {
-
-    type() {
-        return 'null'
-    }
+    type = 'null'
 
     inspect() {
         return 'null'
@@ -63,14 +51,11 @@ class Null {
 
 
 class Array {
+    type = 'array'
     elements
 
     constructor(elements){
         this.elements = elements
-    }
-
-    type() {
-        return 'array'
     }
 
     inspect() {
@@ -81,14 +66,11 @@ class Array {
 
 
 class Hash {
+    type = 'hash'
     map
 
     constructor(map){
         this.map = map
-    }
-
-    type(){
-        return 'hash'
     }
 
     inspect() {
@@ -99,6 +81,7 @@ class Hash {
 
 
 class Function {
+    type = 'function'
     arguments
     body
     env
@@ -109,10 +92,6 @@ class Function {
         this.env = env
     }
 
-    type() {
-        return 'function'
-    }
-
     inspect() {
         return `fn(${this.arguments.join(', ')}){\n${this.body}\n}`
     }
@@ -120,14 +99,11 @@ class Function {
 
 
 class Return {
+    type = 'return'
     value
 
     constructor(value){
         this.value = value
-    }
-
-    type() {
-        return 'return'
     }
 
     inspect() {
@@ -137,14 +113,11 @@ class Return {
 
 
 class Builtin {
+    type = 'builtin'
     fn
 
     constructor(fn){
         this.fn = fn
-    }
-
-    type() {
-        return 'builtin'
     }
 
     inspect() {
@@ -154,14 +127,11 @@ class Builtin {
 
 
 class Error {
+    type = 'error'
     message
 
     constructor(message){
         this.message = message
-    }
-
-    type() {
-        return 'error'
     }
 
     inspect() {

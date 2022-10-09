@@ -79,33 +79,33 @@ function evalPrefix(operator, right){
                 return new Boolean(false)
         }
     }
-    else if(operator == '-' && right.type() == 'integer'){
+    else if(operator == '-' && right.type == 'integer'){
         return new Integer(-right.value)
     }
     else{
-        throw `unknown operator: ${operator}${right.type()}`
+        throw `unknown operator: ${operator}${right.type}`
     }
 }
 
 
 function evalInfix(operator, left, right){
-    if(operator == '=='){
+    if(left.type == 'integer' && right.type == 'integer'){
+        return evalCalc(operator, left, right)
+    }
+    else if(operator == '+' && left.type == 'string' && right.type == 'string'){
+        return new String(left.value + right.value)
+    }
+    else if(operator == '=='){
         return new Boolean(left.value == right.value)
     }
     else if(operator == '!='){
         return new Boolean(left.value != right.value)
     }
-    else if(left.type() == 'integer' && right.type() == 'integer'){
-        return evalCalc(operator, left, right)
-    }
-    else if(operator == '+' && left.type() == 'string' && right.type() == 'string'){
-        return new String(left.value + right.value)
-    }
-    else if(left.type() != right.type()){
-        throw `type mismatch: ${left.type()} ${operator} ${right.type()}`
+    else if(left.type != right.type){
+        throw `type mismatch: ${left.type} ${operator} ${right.type}`
     }
     else{
-        throw `unknown operator: ${left.type()} ${operator} ${right.type()}`
+        throw `unknown operator: ${left.type} ${operator} ${right.type}`
     }
 }
 
@@ -129,23 +129,23 @@ function evalCalc(operator, left, right){
         case '!=':
             return new Boolean(left.value != right.value)
         default:
-            throw `unknown operator: ${left.type()} ${operator} ${right.type()}`
+            throw `unknown operator: ${left.type} ${operator} ${right.type}`
     }
 }
 
 
 function evalIndex(left, index){
-    if(left.type() == 'array' && index.type() == 'integer'){
+    if(left.type == 'array' && index.type == 'integer'){
         if(index.value < 0 || index.value > left.elements.length-1){
             throw `index error`
         }
         return left.elements[index.value]
     }
-    else if(left.type() == 'hash' && index.type() == 'string'){
+    else if(left.type == 'hash' && index.type == 'string'){
         return left.map.get(index.value)
     }
     else{
-        throw `index operator not supported: ${left.type()}`
+        throw `index operator not supported: ${left.type}`
     }
 }
 
@@ -170,7 +170,7 @@ function evalCall(node, args){
         return node.fn(...args)
     }
     else{
-        throw `not a function: ${node.type()}`
+        throw `not a function: ${node.type}`
     }
 }
 
@@ -193,7 +193,7 @@ function evalBlock(node, env){
 
     for(const v of node.statements){
         result = Eval(v, env)
-        if(result.type() == 'return'){
+        if(result.type == 'return'){
             return result
         }
     }
