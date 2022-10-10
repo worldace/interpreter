@@ -1,10 +1,7 @@
 const T = {}
 
-T.DEFAULT   = 'DEFAULT'
-T.ILLEGAL   = 'ILLEGAL'
-T.EOF       = 'EOF'
-T.STRING    = 'STRING'
 T.ID        = 'ID'
+T.STRING    = 'STRING'
 T.INT       = 'INT'
 T.ASSIGN    = '='
 T.PLUS      = '+'
@@ -25,13 +22,14 @@ T.LBRACE    = '{'
 T.RBRACE    = '}'
 T.LBRACKET  = '['
 T.RBRACKET  = ']'
-T.FUNCTION  = 'FUNCTION'
 T.LET       = 'LET'
 T.TRUE      = 'TRUE'
 T.FALSE     = 'FALSE'
 T.IF        = 'IF'
 T.ELSE      = 'ELSE'
+T.FUNCTION  = 'FUNCTION'
 T.RETURN    = 'RETURN'
+T.EOF       = 'EOF'
 
 
 class Token{

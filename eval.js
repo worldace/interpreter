@@ -47,6 +47,7 @@ function evalBlock(node, env){
 
     for(const v of node.statements){
         result = Eval(v, env)
+
         if(result.type == 'return'){
             return result
         }
