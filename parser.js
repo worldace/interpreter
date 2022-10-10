@@ -1,5 +1,5 @@
 import { T } from './token.js'
-import { Program, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文} from './ast.js'
+import { AST, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文} from './ast.js'
 
 
 class Parser {
@@ -22,14 +22,14 @@ class Parser {
 
 
     parse() {
-        const program = new Program()
+        const ast = new AST()
 
         while(this.token.type !== T.EOF){
-            program.statements.push(this.parseStatement())
+            ast.statements.push(this.parseStatement())
             this.next()
         }
 
-        return program
+        return ast
     }
 
 
@@ -111,7 +111,7 @@ class Parser {
     }
 
 
-    prefixFn(token){
+    prefixFn(token){ // 前置式
         switch(token.type){
             case T.ID       : return this.parseID(token)
             case T.STRING   : return this.parseString(token)
@@ -129,7 +129,7 @@ class Parser {
     }
 
 
-    infixFn(token, left){
+    infixFn(token, left){ // 中置式
         switch(token.type){
             case T.PLUS     : return this.parseInfix(token, left)
             case T.MINUS    : return this.parseInfix(token, left)
@@ -320,8 +320,8 @@ function getPriority(type){
         case T.GT       : return 3
         case T.PLUS     : return 4
         case T.MINUS    : return 4
-        case T.SLASH    : return 5
         case T.ASTERISK : return 5
+        case T.SLASH    : return 5
         case T.LPAREN   : return 7
         case T.LBRACKET : return 8
         default         : return 1

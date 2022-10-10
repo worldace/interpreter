@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>interpreter</title>
+  <title>monkey interpreter</title>
 </head>
 <body onkeydown="event.code === 'Enter' && event.ctrlKey && $button.click()">
 
@@ -28,13 +28,13 @@ import { Eval } from './eval.js'
 
 
 function interpreter(code){
-    const lexer   = new Lexer(code)
-    const program = new Parser(lexer).parse()
+    const lexer = new Lexer(code)
+    const ast   = new Parser(lexer).parse()
 
     console.dir(Lexer.dump(code))
-    console.dir(program)
+    console.dir(ast)
 
-    return Eval(program)
+    return Eval(ast)
 }
 
 $button.onclick = () => interpreter($textarea.value)

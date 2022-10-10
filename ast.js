@@ -1,5 +1,5 @@
 
-class Program {
+class AST {
     statements
     constructor(statements = []){
         this.statements = statements
@@ -160,4 +160,4 @@ class Return文 {
 
 
 
-export {Program, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文}
+export {AST, ID, String値, Integer値, Boolean値, Array値, Hash値, Function値, Prefix式, Infix式, Index式, Call式, If式, 式文, Block文, Let文, Return文}

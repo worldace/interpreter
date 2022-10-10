@@ -141,13 +141,13 @@ function isWhiteSpace(c){
 
 
 const reserved = {
-    true  : T.TRUE,
-    false : T.FALSE,
-    let   : T.LET,
-    if    : T.IF,
-    else  : T.ELSE,
-    fn    : T.FUNCTION,
-    return: T.RETURN,
+    true   : T.TRUE,
+    false  : T.FALSE,
+    let    : T.LET,
+    if     : T.IF,
+    else   : T.ELSE,
+    fn     : T.FUNCTION,
+    return : T.RETURN,
 }
 
 

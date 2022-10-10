@@ -5,7 +5,7 @@ import { Functions } from './functions.js'
 
 function Eval(node, env = new Environment){
     switch(node.constructor.name){
-        case 'Program'    : return evalProgram(node, env)
+        case 'AST'        : return evalAST(node, env)
         case 'Let文'      : return env.set(node.id.value, Eval(node.value, env))
         case 'Return文'   : return new Return( Eval(node.value, env) )
         case '式文'       : return Eval(node.expression, env)
@@ -27,10 +27,10 @@ function Eval(node, env = new Environment){
 
 
 
-function evalProgram(program, env){
+function evalAST(ast, env){
     let result
 
-    for (const v of program.statements){
+    for (const v of ast.statements){
         result = Eval(v, env)
 
         if(result.constructor.name == "Return"){
