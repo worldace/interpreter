@@ -103,11 +103,11 @@ class Index式 {
 
 class Call式 {
     token
-    id
+    callee
     arguments
-    constructor(token, id, args){
+    constructor(token, callee, args){
         this.token = token
-        this.id = id
+        this.callee = callee
         this.arguments = args
     }
 }

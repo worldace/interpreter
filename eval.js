@@ -13,7 +13,7 @@ function Eval(node, env = new Environment){
         case 'Prefix式'   : return evalPrefix(node.operator, Eval(node.right, env))
         case 'Infix式'    : return evalInfix(node.operator, Eval(node.left, env), Eval(node.right, env))
         case 'Index式'    : return evalIndex(Eval(node.left, env), Eval(node.index, env))
-        case 'Call式'     : return evalCall(Eval(node.id, env), evalList(node.arguments, env))
+        case 'Call式'     : return evalCall(Eval(node.callee, env), evalList(node.arguments, env))
         case 'If式'       : return evalIf(node, env)
         case 'ID'         : return evalID(node, env)
         case 'String値'   : return new String(node.value)
