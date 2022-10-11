@@ -120,27 +120,11 @@ class Parser {
             case T.INT      : return this.parseInteger()
             case T.TRUE     : return this.parseBoolean()
             case T.FALSE    : return this.parseBoolean()
-            case T.IF       : return this.parseIf()
-            case T.FUNCTION : return this.parseFunction()
             case T.LPAREN   : return this.parseGroupe()
             case T.LBRACKET : return this.parseArray()
             case T.LBRACE   : return this.parseHash()
-        }
-    }
-
-
-    infixFn(left){ // 中置式
-        switch(this.token.type){
-            case T.PLUS     : return this.parseInfix(left)
-            case T.MINUS    : return this.parseInfix(left)
-            case T.ASTERISK : return this.parseInfix(left)
-            case T.SLASH    : return this.parseInfix(left)
-            case T.EQ       : return this.parseInfix(left)
-            case T.NOTEQ    : return this.parseInfix(left)
-            case T.LT       : return this.parseInfix(left)
-            case T.GT       : return this.parseInfix(left)
-            case T.LPAREN   : return this.parseCall(left)
-            case T.LBRACKET : return this.parseIndex(left)
+            case T.IF       : return this.parseIf()
+            case T.FUNCTION : return this.parseFunction()
         }
     }
 
@@ -151,30 +135,6 @@ class Parser {
         node.right = this.parseExpression(6)
 
         return node
-    }
-
-
-    parseInfix(left) {
-        const node = new Infix式(this.token, this.token.literal, left)
-        this.next()
-        node.right = this.parseExpression( getPriority(node.token.type) )
-
-        return node
-    }
-
-
-    parseIndex(left) { // [ index ]
-        const node = new Index式(this.token, left)
-        this.next()
-        node.index = this.parseExpression()
-        this.next(T.RBRACKET)
-
-        return node
-    }
-
-
-    parseCall(left) { // exp ( exp , exp )
-        return new Call式(this.token, left, this.parseList(T.RPAREN))
     }
 
 
@@ -198,21 +158,10 @@ class Parser {
     }
 
 
-    parseIf() { // if ( condition ) { block } else { block }
-        const node = new If式(this.token)
-
-        this.next(T.LPAREN)
+    parseGroupe() { // ( exp )
         this.next()
-        node.condition = this.parseExpression()
+        const node = this.parseExpression()
         this.next(T.RPAREN)
-        this.next(T.LBRACE)
-        node.ifBlock = this.parseBlock()
-
-        if (this.after.type === T.ELSE) {
-            this.next()
-            this.next(T.LBRACE)
-            node.elseBlock = this.parseBlock()
-        }
 
         return node
     }
@@ -244,6 +193,26 @@ class Parser {
     }
 
 
+    parseIf() { // if ( condition ) { block } else { block }
+        const node = new If式(this.token)
+
+        this.next(T.LPAREN)
+        this.next()
+        node.condition = this.parseExpression()
+        this.next(T.RPAREN)
+        this.next(T.LBRACE)
+        node.ifBlock = this.parseBlock()
+
+        if (this.after.type === T.ELSE) {
+            this.next()
+            this.next(T.LBRACE)
+            node.elseBlock = this.parseBlock()
+        }
+
+        return node
+    }
+
+
     parseFunction() { // fn ( arguments ) { block }
         const node  = new Function値(this.token)
 
@@ -256,12 +225,43 @@ class Parser {
     }
 
 
-    parseGroupe() { // ( exp )
+    infixFn(left){ // 中置式
+        switch(this.token.type){
+            case T.LBRACKET : return this.parseIndex(left)
+            case T.LPAREN   : return this.parseCall(left)
+            case T.ASTERISK : return this.parseInfix(left)
+            case T.SLASH    : return this.parseInfix(left)
+            case T.PLUS     : return this.parseInfix(left)
+            case T.MINUS    : return this.parseInfix(left)
+            case T.LT       : return this.parseInfix(left)
+            case T.GT       : return this.parseInfix(left)
+            case T.EQ       : return this.parseInfix(left)
+            case T.NOTEQ    : return this.parseInfix(left)
+        }
+    }
+
+
+    parseInfix(left) {
+        const node = new Infix式(this.token, this.token.literal, left)
         this.next()
-        const node = this.parseExpression()
-        this.next(T.RPAREN)
+        node.right = this.parseExpression( getPriority(node.token.type) )
 
         return node
+    }
+
+
+    parseIndex(left) { // [ index ]
+        const node = new Index式(this.token, left)
+        this.next()
+        node.index = this.parseExpression()
+        this.next(T.RBRACKET)
+
+        return node
+    }
+
+
+    parseCall(left) { // exp ( exp , exp )
+        return new Call式(this.token, left, this.parseList(T.RPAREN))
     }
 
 
@@ -314,16 +314,16 @@ class Parser {
 
 function getPriority(type){
     switch(type){
-        case T.EQ       : return 2
-        case T.NOTEQ    : return 2
-        case T.LT       : return 3
-        case T.GT       : return 3
-        case T.PLUS     : return 4
-        case T.MINUS    : return 4
+        case T.LBRACKET : return 8
+        case T.LPAREN   : return 7
         case T.ASTERISK : return 5
         case T.SLASH    : return 5
-        case T.LPAREN   : return 7
-        case T.LBRACKET : return 8
+        case T.PLUS     : return 4
+        case T.MINUS    : return 4
+        case T.LT       : return 3
+        case T.GT       : return 3
+        case T.EQ       : return 2
+        case T.NOTEQ    : return 2
         default         : return 1
     }
 }
