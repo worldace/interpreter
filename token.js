@@ -33,9 +33,9 @@ T.EOF       = 'EOF'
 
 
 class Token{
-    constructor(type, literal){
-        this.type    = type
-        this.literal = literal
+    constructor(type, word){
+        this.type = type
+        this.word = word
     }
 }
 

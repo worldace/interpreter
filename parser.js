@@ -49,7 +49,7 @@ class Parser {
         const node = new Let文(this.token)
 
         this.next(T.ID)
-        node.id = new ID(this.token, this.token.literal)
+        node.id = new ID(this.token, this.token.word)
         this.next(T.ASSIGN)
         this.next()
         node.value = this.parseExpression()
@@ -130,7 +130,7 @@ class Parser {
 
 
     parsePrefix() {
-        const node = new Prefix式(this.token, this.token.literal)
+        const node = new Prefix式(this.token, this.token.word)
         this.next()
         node.right = this.parseExpression(6)
 
@@ -139,17 +139,17 @@ class Parser {
 
 
     parseID() {
-        return new ID(this.token, this.token.literal)
+        return new ID(this.token, this.token.word)
     }
 
 
     parseString() {
-        return new String値(this.token, this.token.literal)
+        return new String値(this.token, this.token.word)
     }
 
 
     parseInteger() {
-        return new Integer値(this.token, Number(this.token.literal))
+        return new Integer値(this.token, Number(this.token.word))
     }
 
 
@@ -242,7 +242,7 @@ class Parser {
 
 
     parseInfix(left) {
-        const node = new Infix式(this.token, this.token.literal, left)
+        const node = new Infix式(this.token, this.token.word, left)
         this.next()
         node.right = this.parseExpression( getPriority(node.token.type) )
 
@@ -274,12 +274,12 @@ class Parser {
         }
 
         this.next()
-        list.push(new ID(this.token, this.token.literal))
+        list.push(new ID(this.token, this.token.word))
 
         while(this.after.type === T.COMMA){
             this.next()
             this.next()
-            list.push(new ID(this.token, this.token.literal))
+            list.push(new ID(this.token, this.token.word))
         }
 
         this.next(T.RPAREN)
