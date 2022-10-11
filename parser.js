@@ -100,14 +100,14 @@ class Parser {
 
 
     parseExpression(priority = 1) {
-        let left = this.prefixFn()
+        let node = this.prefixFn()
 
         while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
             this.next()
-            left = this.infixFn(left)
+            node = this.infixFn(node)
         }
 
-        return left
+        return node
     }
 
 
@@ -214,7 +214,7 @@ class Parser {
 
 
     parseFunction() { // fn ( arguments ) { block }
-        const node  = new Function値(this.token)
+        const node = new Function値(this.token)
 
         this.next(T.LPAREN)
         node.arguments = this.parseArguments()
