@@ -45,7 +45,7 @@ class Parser {
     }
 
 
-    parseLet(){ // LET ID = exp;
+    parseLet(){ // let ID = exp;
         const node = new Let文(this.token)
 
         this.next(T.ID)
@@ -113,11 +113,11 @@ class Parser {
 
     prefixFn(){ // 前置式
         switch(this.token.type){
+            case T.BANG     : return this.parsePrefix()
+            case T.MINUS    : return this.parsePrefix()
             case T.ID       : return this.parseID()
             case T.STRING   : return this.parseString()
             case T.INT      : return this.parseInteger()
-            case T.BANG     : return this.parsePrefix()
-            case T.MINUS    : return this.parsePrefix()
             case T.TRUE     : return this.parseBoolean()
             case T.FALSE    : return this.parseBoolean()
             case T.IF       : return this.parseIf()
@@ -139,8 +139,8 @@ class Parser {
             case T.NOTEQ    : return this.parseInfix(left)
             case T.LT       : return this.parseInfix(left)
             case T.GT       : return this.parseInfix(left)
-            case T.LBRACKET : return this.parseIndex(left)
             case T.LPAREN   : return this.parseCall(left)
+            case T.LBRACKET : return this.parseIndex(left)
         }
     }
 
@@ -173,7 +173,7 @@ class Parser {
     }
 
 
-    parseCall(left) { // a ( b , c )
+    parseCall(left) { // exp ( exp , exp )
         return new Call式(this.token, left, this.parseList(T.RPAREN))
     }
 
@@ -265,7 +265,7 @@ class Parser {
     }
 
 
-    parseArguments() { // ( a , b )
+    parseArguments() { // ( ID , ID )
         const list = []
 
         if(this.after.type === T.RPAREN) {
