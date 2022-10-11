@@ -86,8 +86,8 @@ class Parser {
     }
 
 
-    parseBlock(token) {
-        const node = new Block文(token)
+    parseBlock() {
+        const node = new Block文(this.token)
         this.next()
 
         while(this.token.type !== T.RBRACE && this.token.type !== T.EOF){
@@ -100,53 +100,53 @@ class Parser {
 
 
     parseExpression(priority = 1) {
-        let left = this.prefixFn(this.token)
+        let left = this.prefixFn()
 
         while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
             this.next()
-            left = this.infixFn(this.token, left)
+            left = this.infixFn(left)
         }
 
         return left
     }
 
 
-    prefixFn(token){ // 前置式
-        switch(token.type){
-            case T.ID       : return this.parseID(token)
-            case T.STRING   : return this.parseString(token)
-            case T.INT      : return this.parseInteger(token)
-            case T.BANG     : return this.parsePrefix(token)
-            case T.MINUS    : return this.parsePrefix(token)
-            case T.TRUE     : return this.parseBoolean(token)
-            case T.FALSE    : return this.parseBoolean(token)
-            case T.IF       : return this.parseIf(token)
-            case T.FUNCTION : return this.parseFunction(token)
-            case T.LPAREN   : return this.parseGroupe(token)
-            case T.LBRACKET : return this.parseArray(token)
-            case T.LBRACE   : return this.parseHash(token)
+    prefixFn(){ // 前置式
+        switch(this.token.type){
+            case T.ID       : return this.parseID()
+            case T.STRING   : return this.parseString()
+            case T.INT      : return this.parseInteger()
+            case T.BANG     : return this.parsePrefix()
+            case T.MINUS    : return this.parsePrefix()
+            case T.TRUE     : return this.parseBoolean()
+            case T.FALSE    : return this.parseBoolean()
+            case T.IF       : return this.parseIf()
+            case T.FUNCTION : return this.parseFunction()
+            case T.LPAREN   : return this.parseGroupe()
+            case T.LBRACKET : return this.parseArray()
+            case T.LBRACE   : return this.parseHash()
         }
     }
 
 
-    infixFn(token, left){ // 中置式
-        switch(token.type){
-            case T.PLUS     : return this.parseInfix(token, left)
-            case T.MINUS    : return this.parseInfix(token, left)
-            case T.ASTERISK : return this.parseInfix(token, left)
-            case T.SLASH    : return this.parseInfix(token, left)
-            case T.EQ       : return this.parseInfix(token, left)
-            case T.NOTEQ    : return this.parseInfix(token, left)
-            case T.LT       : return this.parseInfix(token, left)
-            case T.GT       : return this.parseInfix(token, left)
-            case T.LBRACKET : return this.parseIndex(token, left)
-            case T.LPAREN   : return this.parseCall(token, left)
+    infixFn(left){ // 中置式
+        switch(this.token.type){
+            case T.PLUS     : return this.parseInfix(left)
+            case T.MINUS    : return this.parseInfix(left)
+            case T.ASTERISK : return this.parseInfix(left)
+            case T.SLASH    : return this.parseInfix(left)
+            case T.EQ       : return this.parseInfix(left)
+            case T.NOTEQ    : return this.parseInfix(left)
+            case T.LT       : return this.parseInfix(left)
+            case T.GT       : return this.parseInfix(left)
+            case T.LBRACKET : return this.parseIndex(left)
+            case T.LPAREN   : return this.parseCall(left)
         }
     }
 
 
-    parsePrefix(token) {
-        const node = new Prefix式(token, token.literal)
+    parsePrefix() {
+        const node = new Prefix式(this.token, this.token.literal)
         this.next()
         node.right = this.parseExpression(6)
 
@@ -154,8 +154,8 @@ class Parser {
     }
 
 
-    parseInfix(token, left) {
-        const node = new Infix式(token, token.literal, left)
+    parseInfix(left) {
+        const node = new Infix式(this.token, this.token.literal, left)
         this.next()
         node.right = this.parseExpression( getPriority(node.token.type) )
 
@@ -163,7 +163,7 @@ class Parser {
     }
 
 
-    parseIndex(token, left) { // [ index ]
+    parseIndex(left) { // [ index ]
         const node = new Index式(this.token, left)
         this.next()
         node.index = this.parseExpression()
@@ -173,48 +173,48 @@ class Parser {
     }
 
 
-    parseCall(token, id) { // a ( b , c )
-        return new Call式(token, id, this.parseList(T.RPAREN))
+    parseCall(left) { // a ( b , c )
+        return new Call式(this.token, left, this.parseList(T.RPAREN))
     }
 
 
-    parseIf(token) { // if ( condition ) { block } else { block }
-        const node = new If式(token)
+    parseID() {
+        return new ID(this.token, this.token.literal)
+    }
+
+
+    parseString() {
+        return new String値(this.token, this.token.literal)
+    }
+
+
+    parseInteger() {
+        return new Integer値(this.token, Number(this.token.literal))
+    }
+
+
+    parseBoolean() {
+        return new Boolean値(this.token, this.token.type === T.TRUE)
+    }
+
+
+    parseIf() { // if ( condition ) { block } else { block }
+        const node = new If式(this.token)
 
         this.next(T.LPAREN)
         this.next()
         node.condition = this.parseExpression()
         this.next(T.RPAREN)
         this.next(T.LBRACE)
-        node.ifBlock = this.parseBlock(this.token)
+        node.ifBlock = this.parseBlock()
 
         if (this.after.type === T.ELSE) {
             this.next()
             this.next(T.LBRACE)
-            node.elseBlock = this.parseBlock(this.token)
+            node.elseBlock = this.parseBlock()
         }
 
         return node
-    }
-
-
-    parseID(token) {
-        return new ID(token, token.literal)
-    }
-
-
-    parseString(token) {
-        return new String値(token, token.literal)
-    }
-
-
-    parseInteger(token) {
-        return new Integer値(token, Number(token.literal))
-    }
-
-
-    parseBoolean(token) {
-        return new Boolean値(token, this.token.type === T.TRUE)
     }
 
 
@@ -244,13 +244,13 @@ class Parser {
     }
 
 
-    parseFunction(token) { // fn ( arguments ) { block }
-        const node = new Function値(token)
+    parseFunction() { // fn ( arguments ) { block }
+        const node  = new Function値(this.token)
 
         this.next(T.LPAREN)
         node.arguments = this.parseArguments()
         this.next(T.LBRACE)
-        node.body = this.parseBlock(token)
+        node.body = this.parseBlock()
 
         return node
     }
