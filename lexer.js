@@ -50,12 +50,14 @@ class Lexer{
 
     read(){
         this.index++
+        this.after = this.code[this.index+1]
+
         return this.code[this.index] ?? 'EOF'
     }
 
 
     read2(c){
-        if(this.after() === c){
+        if(this.after === c){
             this.read()
             return true
         }
@@ -63,13 +65,8 @@ class Lexer{
     }
 
 
-    after(){
-        return this.code[this.index+1]
-    }
-
-
     readID(c){
-        while(isLetter(this.after())){
+        while(isLetter(this.after)){
             c += this.read()
         }
         return c
@@ -77,7 +74,7 @@ class Lexer{
 
 
     readNumber(c){
-        while(isNumber(this.after())){
+        while(isNumber(this.after)){
             c += this.read()
         }
         return c
@@ -87,7 +84,7 @@ class Lexer{
     readString(){
         let c = ''
 
-        while(this.after() !== '"'){
+        while(this.after !== '"'){
             c += this.read()
         }
 
