@@ -43,12 +43,6 @@ $button.onclick = () => interpreter($textarea.value)
 
 
 <!--
-[依存関係]
-lexer.js     : token.js
-parser.js    : lexer.js token.js ast.js
-evaluator.js : parser.js object.js functions.js
-
-
 [map関数]
 let map = fn(array, callback) {
     let iter = fn(array, accum) {

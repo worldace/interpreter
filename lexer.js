@@ -30,23 +30,9 @@ class Lexer{
             case '[': return new Token(T.LBRACKET, '[')
             case ']': return new Token(T.RBRACKET, ']')
             case '"': return new Token(T.STRING, this.readString())
+            case '!': return this.read2('=') ? new Token(T.NOTEQ, '!=') : new Token(T.BANG, '!')
+            case '=': return this.read2('=') ? new Token(T.EQ, '==') : new Token(T.ASSIGN, '=')
             case 'EOF': return new Token(T.EOF, '')
-            case '!':
-                if (this.after() === '=') {
-                    this.read()
-                    return new Token(T.NOTEQ, '!=')
-                }
-                else {
-                    return new Token(T.BANG, '!')
-                }
-            case '=':
-                if(this.after() === '=') {
-                    this.read()
-                    return new Token(T.EQ, '==')
-                }
-                else{
-                    return new Token(T.ASSIGN, '=')
-                }
             default:
                 if(isLetter(c)){
                     const id = this.readID(c)
@@ -65,6 +51,15 @@ class Lexer{
     read(){
         this.index++
         return this.code[this.index] ?? 'EOF'
+    }
+
+
+    read2(c){
+        if(this.after() === c){
+            this.read()
+            return true
+        }
+        return false
     }
 
 
