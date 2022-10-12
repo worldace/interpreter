@@ -35,7 +35,7 @@ class Lexer{
             default:
                 if(isLetter(c)){
                     const id = this.readID(c)
-                    return new Token(reserved[id] ?? T.ID, id)
+                    return new Token(T.RESERVED[id] ?? T.ID, id)
                 }
                 else if(isNumber(c)){
                     return new Token(T.INT, this.readNumber(c))
@@ -128,17 +128,6 @@ function isNumber(c){
 
 function isWhiteSpace(c){
     return [' ', '\t', '\r', '\n'].includes(c)
-}
-
-
-const reserved = {
-    true   : T.TRUE,
-    false  : T.FALSE,
-    let    : T.LET,
-    if     : T.IF,
-    else   : T.ELSE,
-    fn     : T.FUNCTION,
-    return : T.RETURN,
 }
 
 

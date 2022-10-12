@@ -31,6 +31,16 @@ T.FUNCTION  = 'FUNCTION'
 T.RETURN    = 'RETURN'
 T.EOF       = 'EOF'
 
+T.RESERVED  = {
+    true   : T.TRUE,
+    false  : T.FALSE,
+    let    : T.LET,
+    if     : T.IF,
+    else   : T.ELSE,
+    fn     : T.FUNCTION,
+    return : T.RETURN,
+}
+
 
 class Token{
     constructor(type, word){
