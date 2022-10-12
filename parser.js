@@ -15,7 +15,7 @@ class Parser {
         this.token = this.after
         this.after = this.lexer.generate()
 
-        if(type && this.token.type !== type){
+        if(type && type !== this.token.type){
             throw `[ParseError]`
         }
     }

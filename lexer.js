@@ -29,8 +29,8 @@ class Lexer{
             case '[': return new Token(T.LBRACKET, '[')
             case ']': return new Token(T.RBRACKET, ']')
             case '"': return new Token(T.STRING, this.readString())
-            case '!': return this.read2('=') ? new Token(T.NOTEQ, '!=') : new Token(T.BANG, '!')
             case '=': return this.read2('=') ? new Token(T.EQ, '==') : new Token(T.ASSIGN, '=')
+            case '!': return this.read2('=') ? new Token(T.NOTEQ, '!=') : new Token(T.BANG, '!')
             case 'EOF': return new Token(T.EOF, '')
             default:
                 if(isLetter(c)){
@@ -101,8 +101,8 @@ class Lexer{
 
 
     static dump(code){
-        const lexer = new Lexer(code)
-        let result  = []
+        const lexer  = new Lexer(code)
+        const result = []
 
         while(true){
             const token = lexer.generate()
