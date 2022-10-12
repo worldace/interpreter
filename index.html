@@ -8,14 +8,13 @@
 <body onkeydown="event.code === 'Enter' && event.ctrlKey && $button.click()">
 
 <textarea id="$textarea" style="width:650px;height:500px;font-size:16px;">
-let a = 10 * (10 + (5 - 5)) / 2 - 1
-let b = fn(n, m){ return n + m }
-let c = b(a, 1)
-let d = [{"cat":"neko"}]
-if(c > 50){ print("50 over") }
+let a = 10 * (-5 + 15) / 2 - 1
+let b = [10 < 5, {"cat":"neko"}]
+let c = fn(n, m){ return n + m }
+let d = c(a, 1)
+if(d != 50){ print("not 50") }
 else{
-    if(c == 50){ fn(){ print(d[0]["cat"]) }() }
-    else{ print("50 under") }
+    if(!b[0] == true){ fn(){ print(b[1]["cat"]) }() }
 }
 </textarea><br>
 <button id="$button">実行 (Ctrl+Enter)</button><br>
