@@ -10,8 +10,7 @@ class Lexer{
 
 
     generate(){
-        let c = this.read()
-        c = this.skipWhiteSpace(c)
+        const c = this.skipWhiteSpace(this.read())
 
         switch(c){
             case ':': return new Token(T.COLON, ':')
