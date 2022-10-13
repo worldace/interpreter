@@ -60,12 +60,9 @@ function evalBlock(node, env){
 function evalPrefix(operator, right){
     if(operator == '!'){
         switch(right.value){
-            case false:
-                return new Boolean(true)
-            case null:
-                return new Boolean(true)
-            default:
-                return new Boolean(false)
+            case false : return new Boolean(true)
+            case null  : return new Boolean(true)
+            default    : return new Boolean(false)
         }
     }
     else if(operator == '-' && right.type == 'integer'){
@@ -101,24 +98,15 @@ function evalInfix(operator, left, right){
 
 function evalCalc(operator, left, right){
     switch(operator){
-        case '+':
-            return new Integer(left.value + right.value)
-        case '-':
-            return new Integer(left.value - right.value)
-        case '*':
-            return new Integer(left.value * right.value)
-        case '/':
-            return new Integer(left.value / right.value)
-        case '<':
-            return new Boolean(left.value < right.value)
-        case '>':
-            return new Boolean(left.value > right.value)
-        case '==':
-            return new Boolean(left.value == right.value)
-        case '!=':
-            return new Boolean(left.value != right.value)
-        default:
-            throw `unknown operator: ${left.type} ${operator} ${right.type}`
+        case '+'  : return new Integer(left.value + right.value)
+        case '-'  : return new Integer(left.value - right.value)
+        case '*'  : return new Integer(left.value * right.value)
+        case '/'  : return new Integer(left.value / right.value)
+        case '<'  : return new Boolean(left.value < right.value)
+        case '>'  : return new Boolean(left.value > right.value)
+        case '==' : return new Boolean(left.value == right.value)
+        case '!=' : return new Boolean(left.value != right.value)
+        default   : throw `unknown operator: ${left.type} ${operator} ${right.type}`
     }
 }
 
