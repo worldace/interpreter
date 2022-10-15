@@ -269,19 +269,13 @@ class Parser {
         const list = []
         this.next()
 
-        if (this.token.type === type) {
-            return list
-        }
-
-        list.push(this.parseExpression())
-
-        while(this.after.type === T.COMMA){
-            this.next()
-            this.next()
+        while(this.token.type !== type){
             list.push(this.parseExpression())
+            this.next()
+            if(this.token.type === T.COMMA){
+                this.next()
+            }
         }
-
-        this.next(type)
 
         return list
     }
