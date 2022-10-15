@@ -99,7 +99,7 @@ class Parser {
     parseExpression(priority = 1) {
         let node = this.prefixFn()
 
-        while(this.token.type !== T.SEMICOLON && priority < getPriority(this.after.type)){
+        while(priority < getPriority(this.after.type) && this.token.type !== T.SEMICOLON){
             this.next()
             node = this.infixFn(node)
         }
