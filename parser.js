@@ -35,12 +35,9 @@ class Parser {
 
     parseStatement() {
         switch(this.token.type){
-            case T.LET:
-                return this.parseLet()
-            case T.RETURN:
-                return this.parseReturn()
-            default:
-                return this.parseExpressionStatement()
+            case T.LET    : return this.parseLet()
+            case T.RETURN : return this.parseReturn()
+            default       : return this.parseExpressionStatement()
         }
     }
 
