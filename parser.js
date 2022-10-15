@@ -267,13 +267,12 @@ class Parser {
 
     parseList(type) { // ( exp , exp )
         const list = []
+        this.next()
 
-        if (this.after.type === type) {
-            this.next()
+        if (this.token.type === type) {
             return list
         }
 
-        this.next()
         list.push(this.parseExpression())
 
         while(this.after.type === T.COMMA){
