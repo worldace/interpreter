@@ -265,10 +265,10 @@ class Parser {
     }
 
 
-    parseList(end) { // ( exp , exp )
+    parseList(type) { // ( exp , exp )
         const list = []
 
-        if (this.after.type === end) {
+        if (this.after.type === type) {
             this.next()
             return list
         }
@@ -282,7 +282,7 @@ class Parser {
             list.push(this.parseExpression())
         }
 
-        this.next(end)
+        this.next(type)
 
         return list
     }
