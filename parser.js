@@ -217,7 +217,7 @@ class Parser {
         const node = new Function値(this.token)
 
         this.next(T.LPAREN)
-        node.arguments = this.parseArguments()
+        node.arguments = this.parseList(T.RPAREN)
         this.next(T.LBRACE)
         node.body = this.parseBlock()
 
@@ -265,31 +265,8 @@ class Parser {
     }
 
 
-    parseArguments() { // ( ID , ID )
-        const list = []
-
-        if(this.after.type === T.RPAREN) {
-            this.next()
-            return list
-        }
-
-        this.next()
-        list.push(new ID(this.token, this.token.word))
-
-        while(this.after.type === T.COMMA){
-            this.next()
-            this.next()
-            list.push(new ID(this.token, this.token.word))
-        }
-
-        this.next(T.RPAREN)
-
-        return list
-    }
-
-
     parseList(end) { // ( exp , exp )
-        let list = []
+        const list = []
 
         if (this.after.type === end) {
             this.next()
